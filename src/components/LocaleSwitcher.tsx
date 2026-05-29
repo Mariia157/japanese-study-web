@@ -2,7 +2,6 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LOCALES, type Locale } from "@/lib/i18n-shared";
 
@@ -59,31 +58,30 @@ export function LocaleSwitcher({ current }: { current: Locale }) {
       <button
         ref={buttonRef}
         onClick={() => setOpen((s) => !s)}
-        className="inline-flex items-center gap-1 h-8 px-3 rounded-md text-sm font-semibold bg-primary-soft text-primary hover:bg-primary-soft-2 transition-colors"
-        title="Language"
+        className="px-4 flex flex-col items-center justify-center hover:bg-pine-soft transition-colors min-w-[60px]"
       >
-        {currentMeta.flag}
-        <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", open && "rotate-180")} />
+        <span className="serif text-2xl font-bold leading-none text-pine">{currentMeta.flag}</span>
+        <span className="text-[8px] uppercase tracking-[0.2em] text-muted mt-1 font-bold">Lang</span>
       </button>
       {mounted && open && coords &&
         createPortal(
           <div
             ref={menuRef}
             style={{ position: "fixed", top: coords.top, right: coords.right, zIndex: 100 }}
-            className="w-44 rounded-lg border border-border bg-background shadow-xl p-1"
+            className="w-44 border border-border bg-surface p-1"
           >
             {LOCALES.map((l) => (
               <button
                 key={l.code}
                 onClick={() => pick(l.code)}
                 className={cn(
-                  "w-full text-left px-2.5 py-1.5 rounded text-sm flex items-center gap-2 transition-colors",
+                  "w-full text-left px-3 py-2 text-sm flex items-baseline gap-2 transition-colors",
                   l.code === current
-                    ? "bg-primary text-white"
-                    : "hover:bg-primary-soft text-foreground"
+                    ? "bg-pine text-white font-bold"
+                    : "hover:bg-pine-soft"
                 )}
               >
-                <span className="text-xs font-mono opacity-70">{l.flag}</span>
+                <span className="serif text-lg font-bold">{l.flag}</span>
                 <span>{l.label}</span>
               </button>
             ))}

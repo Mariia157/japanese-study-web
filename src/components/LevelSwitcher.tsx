@@ -2,7 +2,6 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const LEVELS = [5, 4, 3, 2, 1] as const;
@@ -21,16 +20,16 @@ export function LevelSwitcher({ current }: { current: number }) {
 
   useLayoutEffect(() => {
     if (!open || !buttonRef.current) return;
-    const updatePos = () => {
+    const upd = () => {
       const rect = buttonRef.current!.getBoundingClientRect();
       setCoords({ top: rect.bottom + 6, right: window.innerWidth - rect.right });
     };
-    updatePos();
-    window.addEventListener("scroll", updatePos, true);
-    window.addEventListener("resize", updatePos);
+    upd();
+    window.addEventListener("scroll", upd, true);
+    window.addEventListener("resize", upd);
     return () => {
-      window.removeEventListener("scroll", updatePos, true);
-      window.removeEventListener("resize", updatePos);
+      window.removeEventListener("scroll", upd, true);
+      window.removeEventListener("resize", upd);
     };
   }, [open]);
 
@@ -61,30 +60,31 @@ export function LevelSwitcher({ current }: { current: number }) {
       <button
         ref={buttonRef}
         onClick={() => setOpen((s) => !s)}
-        className="inline-flex items-center gap-1 h-8 px-3 rounded-md text-sm font-semibold bg-primary-soft text-primary hover:bg-primary-soft-2 transition-colors"
+        className="px-4 flex flex-col items-center justify-center hover:bg-ochre-soft transition-colors min-w-[68px]"
       >
-        N{level}
-        <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", open && "rotate-180")} />
+        <span className="serif text-2xl font-bold leading-none text-ochre tabular-nums">N{level}</span>
+        <span className="text-[8px] uppercase tracking-[0.2em] text-muted mt-1 font-bold">Level</span>
       </button>
       {mounted && open && coords &&
         createPortal(
           <div
             ref={menuRef}
             style={{ position: "fixed", top: coords.top, right: coords.right, zIndex: 100 }}
-            className="w-36 rounded-lg border border-border bg-background shadow-xl p-1"
+            className="w-40 border border-border bg-surface p-1"
           >
             {LEVELS.map((l) => (
               <button
                 key={l}
                 onClick={() => pick(l)}
                 className={cn(
-                  "w-full text-left px-2.5 py-1.5 rounded text-sm transition-colors",
+                  "w-full text-left px-3 py-2 text-sm flex items-baseline gap-2 transition-colors",
                   l === level
-                    ? "bg-primary text-white"
-                    : "hover:bg-primary-soft text-foreground"
+                    ? "bg-ochre text-foreground font-bold"
+                    : "hover:bg-ochre-soft"
                 )}
               >
-                N{l} <span className="text-xs opacity-70 ml-1">{describe(l)}</span>
+                <span className="serif text-lg font-bold tabular-nums">N{l}</span>
+                <span className="text-xs opacity-70">{describe(l)}</span>
               </button>
             ))}
           </div>,

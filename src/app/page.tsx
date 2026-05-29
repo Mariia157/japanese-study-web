@@ -153,48 +153,59 @@ export default async function Home() {
         progress={data.levelProgress}
       />
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <CardTitle>{t("home.review_queue")}</CardTitle>
-              <CardDescription>
+      <section className="border border-border bg-surface">
+        {/* Decorative dot band */}
+        <div className="dot-band" />
+
+        {/* Big hero header: massive number + title + Start CTA */}
+        <div className="px-5 sm:px-8 pt-6 pb-5 flex flex-col sm:flex-row gap-4 sm:items-end justify-between border-b border-border">
+          <div>
+            <div className="text-xs uppercase tracking-[0.2em] font-bold text-muted mb-1">
+              {t("home.review_queue").toUpperCase()}
+            </div>
+            <div className="flex items-baseline gap-3">
+              <span className="serif leading-none text-7xl sm:text-8xl text-indigo font-bold tabular-nums">{startCount}</span>
+              <span className="text-sm text-muted leading-tight max-w-[14em] hidden sm:block">
                 {data.queuePreview.length > 0
                   ? t("home.cards_ready", { n: startCount })
                   : t("home.open_to_add")}
-              </CardDescription>
+              </span>
             </div>
-            {data.queuePreview.length > 0 && (
-              <Link href="/review">
-                <Button>{t("common.start")} →</Button>
-              </Link>
-            )}
           </div>
-        </CardHeader>
-        <CardBody className="space-y-4">
-          <div className="grid grid-cols-3 gap-3">
-            <TypePill label={t("home.cat.vocabulary")} count={data.dueByType.vocab} href="/vocabulary" />
-            <TypePill label={t("home.cat.kanji")} count={data.dueByType.kanji} href="/kanji" />
-            <TypePill label={t("home.cat.grammar")} count={data.dueByType.grammar} href="/grammar" />
-          </div>
-
-          {data.queuePreview.length > 0 ? (
-            <div>
-              <div className="text-xs uppercase tracking-wide text-muted mb-2">{t("home.up_next")}</div>
-              <div className="grid gap-2">
-                {data.queuePreview.map((q) => (
-                  <QueuePreviewRow key={q.cardId} item={q} t={t} locale={locale} />
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="px-4 py-6 rounded-lg bg-primary-soft text-sm text-center">
-              <p className="font-medium text-foreground">{t("home.deck_empty")}</p>
-              <p className="text-muted mt-1">{t("home.browse_to_add")}</p>
-            </div>
+          {data.queuePreview.length > 0 && (
+            <Link href="/review">
+              <Button size="lg">{t("common.start")} →</Button>
+            </Link>
           )}
-        </CardBody>
-      </Card>
+        </div>
+
+        {/* Three colored category counters */}
+        <div className="grid grid-cols-3 divide-x divide-border border-b border-border">
+          <CategoryCounter color="vermilion" label={t("home.cat.vocabulary")} jp="語" count={data.dueByType.vocab} href="/vocabulary" />
+          <CategoryCounter color="indigo" label={t("home.cat.kanji")} jp="漢" count={data.dueByType.kanji} href="/kanji" />
+          <CategoryCounter color="pine" label={t("home.cat.grammar")} jp="文" count={data.dueByType.grammar} href="/grammar" />
+        </div>
+
+        {/* Up next list — newspaper-style numbered entries */}
+        {data.queuePreview.length > 0 ? (
+          <div className="px-5 sm:px-8 py-5">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted">{t("home.up_next")}</span>
+              <div className="rule-line flex-1" />
+            </div>
+            <ol className="divide-y divide-border-soft">
+              {data.queuePreview.map((q, i) => (
+                <QueuePreviewRow key={q.cardId} item={q} t={t} locale={locale} index={i + 1} />
+              ))}
+            </ol>
+          </div>
+        ) : (
+          <div className="px-5 sm:px-8 py-10 text-sm text-center">
+            <p className="font-bold text-lg">{t("home.deck_empty")}</p>
+            <p className="text-muted mt-2 max-w-md mx-auto">{t("home.browse_to_add")}</p>
+          </div>
+        )}
+      </section>
 
       {data.totals.vocab === 0 && data.totals.kanji === 0 && data.totals.grammar === 0 && (
         <Card className="border-amber-200 bg-amber-50">
@@ -289,63 +300,142 @@ function LevelProgressSection({
   const overallPct = totalAll === 0 ? 0 : Math.round((learnedAll / totalAll) * 100);
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <CardTitle>{t("home.your_progress", { level: jlpt })}</CardTitle>
-            <CardDescription>
+    <section className="border border-border bg-surface">
+      {/* Decorative top band: three solid stripes */}
+      <div className="tri-band" />
+
+      {/* Title row: huge percentage + section title + level badge */}
+      <div className="px-5 sm:px-8 pt-6 pb-4 flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border">
+        <div>
+          <div className="text-xs uppercase tracking-[0.2em] font-bold text-muted mb-1">
+            {t("home.your_progress", { level: jlpt }).toUpperCase()}
+          </div>
+          <div className="flex items-baseline gap-4">
+            <span className="serif leading-none text-7xl sm:text-8xl text-vermilion font-bold tabular-nums">{overallPct}</span>
+            <span className="serif text-4xl text-muted leading-none">%</span>
+            <span className="text-sm text-muted leading-tight max-w-[14em] hidden sm:block">
               {totalAll > 0
                 ? t("home.progress_summary", { learned: learnedAll, total: totalAll, pct: overallPct })
                 : t("home.switch_level_hint")}
-            </CardDescription>
-          </div>
-          <div className="px-3 py-1.5 rounded-md bg-navy text-white">
-            <span className="text-sm font-medium">{t("home.level_label", { n: xpLevel })}</span>
+            </span>
           </div>
         </div>
-      </CardHeader>
-      <CardBody className="space-y-4">
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-muted">{t("home.xp_to_next")}</span>
-            <span className="font-mono text-muted">{t("home.xp_total", { current: xpCurrent, needed: xpNeeded, total: xp.toLocaleString() })}</span>
-          </div>
-          <Progress value={xpNeeded === 0 ? 0 : (xpCurrent / xpNeeded) * 100} />
+        <div className="flex items-center gap-3 jp">
+          <span className="text-xs uppercase tracking-[0.2em] text-muted">{t("home.level_label", { n: "" }).replace(/\s*\d*$/, "").trim()}</span>
+          <span className="bg-indigo text-white font-bold text-3xl serif px-4 py-1.5 tabular-nums">{xpLevel}</span>
         </div>
-        <div className="space-y-3">
-          <ProgressRow t={t} label={t("home.cat.grammar")} data={progress.grammar} />
-          <ProgressRow t={t} label={t("home.cat.vocabulary")} data={progress.vocab} />
-          <ProgressRow t={t} label={t("home.cat.kanji")} data={progress.kanji} />
+      </div>
+
+      {/* 3 colored category panels */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-border">
+        <CategoryPanel
+          color="indigo"
+          label={t("home.cat.grammar")}
+          jp="文法"
+          data={progress.grammar}
+        />
+        <CategoryPanel
+          color="vermilion"
+          label={t("home.cat.vocabulary")}
+          jp="語彙"
+          data={progress.vocab}
+        />
+        <CategoryPanel
+          color="ochre"
+          label={t("home.cat.kanji")}
+          jp="漢字"
+          data={progress.kanji}
+        />
+      </div>
+
+      {/* XP footer rail */}
+      <div className="px-5 sm:px-8 py-4 border-t border-border bg-foreground text-background flex items-center gap-4">
+        <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-background/70">XP</span>
+        <span className="serif text-2xl tabular-nums">{xp.toLocaleString()}</span>
+        <span className="text-xs text-background/65 flex-1 hidden sm:block">
+          {t("home.xp_total", { current: xpCurrent, needed: xpNeeded, total: xp.toLocaleString() })}
+        </span>
+        <div className="flex-1 max-w-[20rem]">
+          <Progress
+            value={xpNeeded === 0 ? 0 : (xpCurrent / xpNeeded) * 100}
+            barClassName="bg-ochre"
+            emptyClassName="bg-background/20"
+          />
         </div>
-      </CardBody>
-    </Card>
+      </div>
+    </section>
   );
 }
 
-function ProgressRow({ t, label, data }: { t: T; label: string; data: CategoryProgress }) {
+function CategoryPanel({
+  color,
+  label,
+  jp,
+  data,
+}: {
+  color: "indigo" | "vermilion" | "ochre" | "pine";
+  label: string;
+  jp: string;
+  data: CategoryProgress;
+}) {
   const pct = data.total === 0 ? 0 : Math.round((data.learned / data.total) * 100);
+  const palette: Record<string, { txt: string; bar: string; barBg: string; jpClr: string }> = {
+    indigo:    { txt: "text-indigo",    bar: "bg-indigo",    barBg: "bg-indigo-soft",    jpClr: "text-indigo" },
+    vermilion: { txt: "text-vermilion", bar: "bg-vermilion", barBg: "bg-vermilion-soft", jpClr: "text-vermilion" },
+    ochre:     { txt: "text-ochre",     bar: "bg-ochre",     barBg: "bg-ochre-soft",     jpClr: "text-ochre" },
+    pine:      { txt: "text-pine",      bar: "bg-pine",      barBg: "bg-pine-soft",      jpClr: "text-pine" },
+  };
+  const p = palette[color];
   return (
-    <div className="space-y-1.5">
-      <div className="flex items-center justify-between text-sm">
-        <span className="font-medium">{label}</span>
-        <span className="text-xs text-muted font-mono">
-          {t("home.progress_row", { learned: data.learned, learning: data.learning, total: data.total })}
-        </span>
+    <div className="relative p-5 sm:p-6 flex flex-col gap-3">
+      {/* Large vertical kanji on right edge */}
+      <span aria-hidden className={`absolute right-2 top-2 jp serif text-6xl leading-none opacity-15 ${p.jpClr}`}>
+        {jp}
+      </span>
+      <div className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted">{label}</div>
+      <div className="flex items-baseline gap-1.5">
+        <span className={`serif text-5xl leading-none font-bold tabular-nums ${p.txt}`}>{data.learned}</span>
+        <span className="text-base text-muted">/</span>
+        <span className="text-base text-muted tabular-nums">{data.total}</span>
       </div>
-      <Progress value={pct} />
+      <div className="text-xs text-muted mt-auto pt-2">
+        <Progress value={pct} barClassName={p.bar} emptyClassName={p.barBg} />
+        <div className="flex justify-between mt-1.5 tabular-nums">
+          <span>{pct}%</span>
+          <span>
+            {data.learning > 0 && `+${data.learning} `}
+          </span>
+        </div>
+      </div>
     </div>
   );
 }
 
-function TypePill({ label, count, href }: { label: string; count: number; href: string }) {
+function CategoryCounter({
+  color,
+  label,
+  jp,
+  count,
+  href,
+}: {
+  color: "indigo" | "vermilion" | "ochre" | "pine";
+  label: string;
+  jp: string;
+  count: number;
+  href: string;
+}) {
+  const palette: Record<string, { txt: string; bgSoft: string; jpClr: string }> = {
+    indigo:    { txt: "text-indigo",    bgSoft: "hover:bg-indigo-soft",    jpClr: "text-indigo" },
+    vermilion: { txt: "text-vermilion", bgSoft: "hover:bg-vermilion-soft", jpClr: "text-vermilion" },
+    ochre:     { txt: "text-ochre",     bgSoft: "hover:bg-ochre-soft",     jpClr: "text-ochre" },
+    pine:      { txt: "text-pine",      bgSoft: "hover:bg-pine-soft",      jpClr: "text-pine" },
+  };
+  const p = palette[color];
   return (
-    <Link
-      href={href}
-      className="flex items-center gap-2 px-3 py-2.5 rounded-md border border-border hover:border-primary hover:bg-primary-soft transition-colors"
-    >
-      <span className="text-sm font-medium">{label}</span>
-      <span className="ml-auto text-xs font-mono text-muted">{count}</span>
+    <Link href={href} className={`relative p-5 flex flex-col gap-1 transition-colors ${p.bgSoft}`}>
+      <span aria-hidden className={`absolute right-2 top-1 jp serif text-5xl leading-none opacity-15 ${p.jpClr}`}>{jp}</span>
+      <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted">{label}</span>
+      <span className={`serif text-4xl font-bold tabular-nums leading-none ${p.txt}`}>{count}</span>
     </Link>
   );
 }
@@ -358,31 +448,46 @@ type PreviewItem = {
   payload: Record<string, unknown>;
 };
 
-function QueuePreviewRow({ item, t, locale }: { item: PreviewItem; t: T; locale: Locale }) {
+function QueuePreviewRow({ item, t, locale, index }: { item: PreviewItem; t: T; locale: Locale; index: number }) {
   const p = item.payload;
   const meanings = pickL(locale, p.meanings as string[], (p.meaningsUk as string[]) ?? null);
   const title = pickL(locale, p.title as string, (p.titleUk as string) ?? null);
   const stateLabel = item.state === "new" ? t("common.in_deck") : item.state === "learning" ? t("common.learning") : t("common.learned");
-  const stateColor = item.state === "new" ? "bg-primary-soft text-primary" : item.state === "learning" ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700";
+  const stateColor =
+    item.state === "new" ? "bg-vermilion text-white"
+    : item.state === "learning" ? "bg-ochre text-foreground"
+    : "bg-pine text-white";
+  const typeColor =
+    item.itemType === "vocab" ? "text-vermilion"
+    : item.itemType === "kanji" ? "text-indigo"
+    : "text-pine";
   return (
-    <div className="flex items-center gap-3 px-3 py-2 rounded-lg border border-border bg-background">
-      {item.itemType === "vocab" && (
-        <Furigana word={String(p.word)} reading={String(p.reading)} size="md" className="text-base font-medium" />
-      )}
-      {item.itemType === "kanji" && (
-        <span className="jp text-2xl font-medium text-primary">{String(p.character)}</span>
-      )}
-      {item.itemType === "grammar" && (
-        <span className="font-medium text-sm">{String(title)}</span>
-      )}
-      <span className="text-xs text-muted truncate flex-1 min-w-0">
-        {item.itemType === "vocab" && meanings?.join(", ")}
-        {item.itemType === "kanji" && meanings?.join(", ")}
-        {item.itemType === "grammar" && `N${p.jlptLevel}`}
-      </span>
-      <span className={"text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded font-medium " + stateColor}>
+    <li className="flex items-center gap-4 py-3 group">
+      <span className="text-xs tabular-nums font-mono text-muted shrink-0 w-7">{String(index).padStart(2, "0")}</span>
+      <div className="shrink-0 w-14 flex justify-center">
+        {item.itemType === "vocab" && (
+          <Furigana word={String(p.word)} reading={String(p.reading)} size="md" className={`text-lg font-medium ${typeColor}`} />
+        )}
+        {item.itemType === "kanji" && (
+          <span className={`jp serif text-3xl font-bold leading-none ${typeColor}`}>{String(p.character)}</span>
+        )}
+        {item.itemType === "grammar" && (
+          <span className={`jp text-2xl font-medium ${typeColor}`}>文</span>
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        {item.itemType === "grammar" && (
+          <div className="font-bold text-sm truncate">{String(title)}</div>
+        )}
+        <div className="text-xs text-muted truncate">
+          {item.itemType === "vocab" && meanings?.join(", ")}
+          {item.itemType === "kanji" && meanings?.join(", ")}
+          {item.itemType === "grammar" && `N${p.jlptLevel}`}
+        </div>
+      </div>
+      <span className={`text-[9px] uppercase tracking-[0.15em] px-1.5 py-0.5 font-bold ${stateColor}`}>
         {stateLabel}
       </span>
-    </div>
+    </li>
   );
 }

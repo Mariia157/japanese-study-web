@@ -172,7 +172,11 @@ async function main() {
   for (const v of VOCAB) {
     await db.vocabulary.upsert({
       where: { word_reading: { word: v.word, reading: v.reading } },
-      update: { jlptLevel: v.jlpt },
+      update: {
+        meanings: JSON.stringify(v.meanings),
+        partOfSpeech: JSON.stringify([v.pos]),
+        jlptLevel: v.jlpt,
+      },
       create: {
         word: v.word, reading: v.reading,
         meanings: JSON.stringify(v.meanings),
