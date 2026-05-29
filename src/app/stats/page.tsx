@@ -189,10 +189,10 @@ function Heatmap({ daily }: { daily: { date: string; count: number }[] }) {
             const bg = v === 0
               ? "bg-primary-soft"
               : intensity < 0.34
-              ? "bg-violet-300"
+              ? "bg-primary-soft-2"
               : intensity < 0.67
-              ? "bg-violet-500"
-              : "bg-violet-700";
+              ? "bg-primary"
+              : "bg-navy-2";
             return (
               <div
                 key={d.date}

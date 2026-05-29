@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/Card";
 import { MnemonicEditor } from "@/components/kanji/MnemonicEditor";
 import { InQueueBadge } from "@/components/InQueueBadge";
+import { BackButton } from "@/components/BackButton";
 import { createCardIfMissing } from "@/lib/srs/queue";
 
 export const dynamic = "force-dynamic";
@@ -24,6 +25,7 @@ export default async function KanjiDetail({ params }: { params: Promise<{ char: 
 
   return (
     <div className="max-w-3xl mx-auto space-y-4">
+      <BackButton />
       <Card>
         <CardBody className="flex flex-col sm:flex-row items-center sm:items-start gap-6 py-8">
           <div className="text-center">

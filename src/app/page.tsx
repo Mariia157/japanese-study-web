@@ -220,7 +220,7 @@ function StatCard({
   accent?: boolean;
 }) {
   return (
-    <Card className={"h-full " + (accent ? "bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white border-0" : "")}>
+    <Card className={"h-full " + (accent ? "bg-streak-gradient text-white border-0" : "")}>
       <div className="grid grid-rows-[auto_auto_auto_1fr_auto] h-full p-4 gap-1.5">
         <div className={"flex items-center gap-1.5 text-xs " + (accent ? "text-white/90" : "text-muted")}>
           {icon}
@@ -283,7 +283,7 @@ function LevelProgressSection({
                 : "Switch level in the navbar to see progress."}
             </CardDescription>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-koi-gradient text-white">
             <Trophy className="w-4 h-4" />
             <span className="text-sm font-medium">Level {xpLevel}</span>
           </div>
@@ -349,7 +349,7 @@ type PreviewItem = {
 function QueuePreviewRow({ item }: { item: PreviewItem }) {
   const p = item.payload;
   const stateLabel = item.state === "new" ? "new" : item.state === "learning" ? "learning" : "review";
-  const stateColor = item.state === "new" ? "bg-violet-100 text-violet-700" : item.state === "learning" ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700";
+  const stateColor = item.state === "new" ? "bg-primary-soft text-primary" : item.state === "learning" ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700";
   return (
     <div className="flex items-center gap-3 px-3 py-2 rounded-lg border border-border bg-background">
       {item.itemType === "vocab" && (

@@ -83,7 +83,7 @@ export function ReviewSession({ initial }: { initial: Item[] }) {
         </div>
       )}
       {xpToast && (
-        <div className="fixed bottom-6 right-6 px-4 py-2 rounded-lg bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white text-sm font-medium shadow-lg animate-pop flex items-center gap-2">
+        <div className="fixed bottom-6 right-6 px-4 py-2 rounded-lg bg-streak-gradient text-white text-sm font-medium shadow-lg animate-pop flex items-center gap-2">
           <Sparkles className="w-4 h-4" />
           {xpToast}
         </div>

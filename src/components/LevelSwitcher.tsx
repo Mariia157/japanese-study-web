@@ -61,7 +61,7 @@ export function LevelSwitcher({ current }: { current: number }) {
       <button
         ref={buttonRef}
         onClick={() => setOpen((s) => !s)}
-        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-sm font-semibold bg-primary-soft text-primary hover:bg-primary-soft-2 transition-colors"
+        className="inline-flex items-center gap-1 h-8 px-3 rounded-md text-sm font-semibold bg-primary-soft text-primary hover:bg-primary-soft-2 transition-colors"
       >
         N{level}
         <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", open && "rotate-180")} />

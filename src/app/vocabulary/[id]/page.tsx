@@ -5,6 +5,7 @@ import { createCardIfMissing } from "@/lib/srs/queue";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Furigana } from "@/components/Furigana";
 import { InQueueBadge } from "@/components/InQueueBadge";
+import { BackButton } from "@/components/BackButton";
 
 export const dynamic = "force-dynamic";
 
@@ -34,6 +35,7 @@ export default async function VocabDetail({ params }: { params: Promise<{ id: st
 
   return (
     <div className="max-w-3xl mx-auto space-y-4">
+      <BackButton />
       <header className="space-y-2">
         <div className="text-xs uppercase tracking-wide text-muted">
           N{word.jlptLevel}{word.source ? ` · ${word.source}` : ""} · {pos.join(", ") || "vocabulary"}

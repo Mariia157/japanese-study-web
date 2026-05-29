@@ -88,25 +88,56 @@ model VocabularyExample {
   @@id([vocabularyId, exampleId])
 }
 
+model GrammarSection {
+  id        Int             @id @default(autoincrement())
+  slug      String          @unique
+  title     String
+  jlptLevel Int
+  order     Int             @default(0)
+  summary   String?         // short description shown on the index
+  points    GrammarPoint[]
+  reviews   SectionReview[]
+
+  @@index([jlptLevel, order])
+}
+
 model GrammarPoint {
   id          Int               @id @default(autoincrement())
   title       String
   slug        String            @unique
   jlptLevel   Int
   source      String?           // e.g. "genki-L1"
+  sectionId   Int?
+  order       Int               @default(0)
   explanation String            // markdown
   examples    String            // JSON: [{jp, en, note}]
   exercises   GrammarExercise[]
+  section     GrammarSection?   @relation(fields: [sectionId], references: [id], onDelete: SetNull)
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
 
   @@index([jlptLevel])
+  @@index([sectionId, order])
+}
+
+model SectionReview {
+  // A pool of mixed exercises tied to a section, used after all points are completed.
+  id        Int                     @id @default(autoincrement())
+  sectionId Int
+  prompt    String
+  type      String                  // "mcq" | "fill" | "arrange" | "translate"
+  choices   String                  // JSON string array
+  answer    String
+  explanation String?
+  section   GrammarSection          @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  @@index([sectionId])
 }
 
 model GrammarExercise {
   id          Int          @id @default(autoincrement())
   grammarId   Int
-  type        String       // "mcq" | "fill" | "translate"
+  type        String       // "mcq" | "fill" | "arrange" | "translate"
   prompt      String
   choices     String       // JSON string array (empty for fill/translate)
   answer      String       // canonical answer

@@ -1,20 +1,33 @@
 @import "tailwindcss";
 
 :root {
+  /* Base */
   --background: #ffffff;
-  --surface: #faf8ff;
-  --surface-2: #f4f0ff;
-  --foreground: #1a1625;
-  --muted: #6b6580;
-  --border: #ece8f5;
-  --primary: #7c3aed;
-  --primary-hover: #6d28d9;
-  --primary-soft: #ede9fe;
-  --primary-soft-2: #ddd6fe;
-  --accent: #a78bfa;
-  --success: #10b981;
+  --surface: #f4faf9;
+  --surface-2: #e6f4f1;
+  --foreground: #012D4E;
+  --muted: #5a7896;
+  --border: #d8e6e3;
+
+  /* Brand */
+  --primary: #0AB59E;
+  --primary-hover: #098e7c;
+  --primary-soft: #d8f3ee;
+  --primary-soft-2: #b5e8df;
+  --primary-light: #0ED1B2;
+
+  --accent: #C92E43;        /* koi red */
+  --accent-hover: #b22839;
+  --accent-soft: #fbe0e4;
+  --accent-dark: #841930;
+
+  --navy: #012D4E;
+  --navy-2: #013F69;
+  --sky: #75A5D3;
+
+  --success: #0AB59E;
   --warning: #f59e0b;
-  --danger: #ef4444;
+  --danger: #C92E43;
 }
 
 @theme inline {
@@ -28,7 +41,14 @@
   --color-primary-hover: var(--primary-hover);
   --color-primary-soft: var(--primary-soft);
   --color-primary-soft-2: var(--primary-soft-2);
+  --color-primary-light: var(--primary-light);
   --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-dark: var(--accent-dark);
+  --color-navy: var(--navy);
+  --color-navy-2: var(--navy-2);
+  --color-sky: var(--sky);
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-danger: var(--danger);
@@ -37,8 +57,16 @@
   --font-jp: "Noto Sans JP", var(--font-geist-sans);
 }
 
+html {
+  font-size: 20px;
+  background-color: var(--background);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='40' viewBox='0 0 80 40'><g fill='none' stroke='%230AB59E' stroke-width='1.4' opacity='0.30'><circle cx='0' cy='40' r='40'/><circle cx='0' cy='40' r='30'/><circle cx='0' cy='40' r='20'/><circle cx='0' cy='40' r='10'/><circle cx='80' cy='40' r='40'/><circle cx='80' cy='40' r='30'/><circle cx='80' cy='40' r='20'/><circle cx='80' cy='40' r='10'/><circle cx='40' cy='0' r='40'/><circle cx='40' cy='0' r='30'/><circle cx='40' cy='0' r='20'/><circle cx='40' cy='0' r='10'/></g></svg>");
+  background-repeat: repeat;
+  background-attachment: fixed;
+}
+
 body {
-  background: var(--background);
+  background: transparent !important;
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
 }
@@ -58,6 +86,17 @@ ruby.jp rt {
 }
 ruby.ruby-under {
   ruby-position: under;
+}
+
+/* Brand gradients */
+.bg-streak-gradient {
+  background-image: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+}
+.bg-primary-gradient {
+  background-image: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 50%, var(--navy-2) 100%);
+}
+.bg-koi-gradient {
+  background-image: linear-gradient(135deg, var(--primary) 0%, var(--navy-2) 100%);
 }
 
 @keyframes pop {

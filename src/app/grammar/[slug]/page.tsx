@@ -1,11 +1,14 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { db } from "@/lib/db";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/Card";
-import { QuizBlock } from "@/components/grammar/QuizBlock";
+import { Button } from "@/components/ui/Button";
 import { InQueueBadge } from "@/components/InQueueBadge";
+import { BackButton } from "@/components/BackButton";
 import { createCardIfMissing } from "@/lib/srs/queue";
+import { Sparkles, ArrowRight } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +16,7 @@ export default async function GrammarDetail({ params }: { params: Promise<{ slug
   const { slug } = await params;
   const point = await db.grammarPoint.findUnique({
     where: { slug },
-    include: { exercises: true },
+    include: { exercises: { select: { id: true } } },
   });
   if (!point) notFound();
 
@@ -25,7 +28,8 @@ export default async function GrammarDetail({ params }: { params: Promise<{ slug
   await createCardIfMissing("grammar", point.id);
 
   return (
-    <div className="max-w-3xl mx-auto space-y-4">
+    <div className="max-w-5xl mx-auto space-y-4">
+      <BackButton />
       <header className="space-y-2">
         <div className="text-xs uppercase tracking-wide text-muted">N{point.jlptLevel}{point.source ? ` · ${point.source}` : ""}</div>
         <div className="flex items-start justify-between gap-3">
@@ -58,18 +62,18 @@ export default async function GrammarDetail({ params }: { params: Promise<{ slug
 
       {point.exercises.length > 0 && (
         <Card>
-          <CardHeader><CardTitle>Practice ({point.exercises.length})</CardTitle></CardHeader>
-          <CardBody>
-            <QuizBlock
-              exercises={point.exercises.map((e) => ({
-                id: e.id,
-                type: e.type as "mcq" | "fill" | "translate",
-                prompt: e.prompt,
-                choices: JSON.parse(e.choices),
-                answer: e.answer,
-                explanation: e.explanation,
-              }))}
-            />
+          <CardBody className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 py-5">
+            <div>
+              <div className="font-semibold text-lg">Ready to practice?</div>
+              <p className="text-sm text-muted">{point.exercises.length} questions: multiple choice, fill-in, arrange tokens, and translate to Japanese.</p>
+            </div>
+            <Link href={`/grammar/${point.slug}/practice`}>
+              <Button size="lg">
+                <Sparkles className="w-4 h-4" />
+                Start practice
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Link>
           </CardBody>
         </Card>
       )}

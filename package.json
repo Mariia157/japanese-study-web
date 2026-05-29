@@ -14,6 +14,8 @@
     "db:studio": "prisma studio",
     "seed": "tsx scripts/seed-starter.ts",
     "seed:genki": "tsx scripts/seed-genki.ts",
+    "seed:explanations": "tsx scripts/seed-explanations.ts",
+    "seed:vocab": "tsx scripts/seed-vocab-extra.ts",
     "seed:genki:pdf": "tsx scripts/import-genki.ts"
   },
   "dependencies": {

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Flame, BookOpen, Languages, Sparkles, Home as HomeIcon, BarChart3 } from "lucide-react";
 import { getCurrentLevel } from "@/lib/level";
@@ -16,7 +17,7 @@ export async function Nav() {
     <header className="sticky top-0 z-40 w-full border-b border-border bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-4">
         <Link href="/" className="flex items-center gap-2 font-semibold">
-          <span className="grid place-items-center w-8 h-8 rounded-lg bg-primary text-white text-sm jp">日</span>
+          <Image src="/carp.png" alt="Nihongo SRS" width={36} height={36} className="rounded-full" priority />
           <span className="hidden sm:inline">Nihongo SRS</span>
         </Link>
         <nav className="flex items-center gap-1">
@@ -63,11 +64,11 @@ async function StreakBadge() {
   }
   return (
     <div className="flex items-center gap-2">
-      <div className="hidden sm:inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md bg-primary-soft text-primary font-medium">
+      <div className="hidden sm:inline-flex items-center gap-1 h-8 px-3 rounded-md bg-primary-soft text-primary text-sm font-semibold">
         <Sparkles className="w-3.5 h-3.5" />
         {xp} XP
       </div>
-      <div className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white font-medium">
+      <div className="inline-flex items-center gap-1 h-8 px-3 rounded-md bg-streak-gradient text-white text-sm font-semibold">
         <Flame className="w-3.5 h-3.5" />
         {streak}
       </div>

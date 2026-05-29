@@ -44,7 +44,7 @@ export default async function VocabPage() {
                 ? "bg-emerald-100 text-emerald-700"
                 : state === "learning"
                 ? "bg-amber-100 text-amber-700"
-                : "bg-violet-100 text-violet-700";
+                : "bg-primary-soft text-primary";
             const stateLabel = state === "review" ? "learned" : state === "learning" ? "learning" : "in deck";
             return (
               <Link key={w.id} href={`/vocabulary/${w.id}`}>
