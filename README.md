@@ -139,11 +139,43 @@ Ease factor имеет нижнюю границу 1.3. Все 6 тест-кей
 
 ## База данных
 
-Использует **SQLite** локально (файл `prisma/dev.db`). Все массивы и JSON хранятся как строки JSON (для совместимости с SQLite).
+Использует **SQLite** локально (файл `dev.db` в корне репозитория, путь прописан в `.env` как `DATABASE_URL="file:./dev.db"`). Все массивы и JSON хранятся как строки JSON (для совместимости с SQLite).
 
 Ключевые модели: `Kanji`, `Radical`, `Vocabulary`, `GrammarPoint`, `GrammarExercise`, `ListeningExercise`, `ReadingExercise`, `SrsCard`, `ReviewLog`, `UserStats`, `Achievement`.
 
 Для деплоя на Vercel поменяй `provider = "sqlite"` на `"postgresql"` в `prisma/schema.prisma`, добавь `DATABASE_URL` Postgres и запусти `prisma migrate deploy`.
+
+### Как получить доступ к БД
+
+**1. Prisma Studio** — визуальный браузер с фильтрами и редактированием
+```powershell
+npm run db:studio
+```
+Откроет `http://localhost:5555`.
+
+**2. SQLite CLI** (если установлен `sqlite3`)
+```powershell
+sqlite3 dev.db
+.tables
+SELECT word, reading, jlptLevel FROM Vocabulary LIMIT 10;
+.exit
+```
+
+**3. GUI-клиент** — открыть файл `dev.db` в:
+- [DB Browser for SQLite](https://sqlitebrowser.org/) — бесплатный, удобный для просмотра
+- DBeaver / TablePlus / DataGrip
+
+**4. Одноразовый запрос через Prisma из кода**
+```ts
+// scripts/query.ts
+import { PrismaClient } from "@prisma/client";
+import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+const db = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url: "./dev.db" }) });
+const rows = await db.vocabulary.findMany({ where: { jlptLevel: 3 }, take: 10 });
+console.log(rows);
+await db.$disconnect();
+```
+Запуск: `npx tsx scripts/query.ts`.
 
 ## Источники контента
 
