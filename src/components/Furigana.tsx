@@ -1,7 +1,7 @@
-// Renders Japanese with furigana over kanji segments using <ruby>.
-// Two forms:
+import { Fragment } from "react";
+
+// Renders Japanese with furigana under kanji segments using <ruby>.
 //   <Furigana word="食べる" reading="たべる" /> — pairs by aligning kana suffix/prefix to the reading.
-//   <FuriganaText pairs={[{t:"私",r:"わたし"},{t:"は"},...]} /> — explicit segments.
 
 const KANA = /^[぀-ゟ゠-ヿー]+$/;
 const KANJI = /^[一-龯々]+$/;
@@ -9,10 +9,8 @@ const KANJI = /^[一-龯々]+$/;
 type Segment = { t: string; r?: string };
 
 export function splitWithReading(word: string, reading: string): Segment[] {
-  // No kanji at all → no ruby needed.
   if (!/[一-龯々]/.test(word)) return [{ t: word }];
 
-  // Tokenize word into runs of kanji / kana.
   const runs: { kind: "kanji" | "kana"; chars: string }[] = [];
   for (const ch of word) {
     const kind = KANJI.test(ch) ? "kanji" : KANA.test(ch) ? "kana" : "kanji";
@@ -21,8 +19,6 @@ export function splitWithReading(word: string, reading: string): Segment[] {
     else runs.push({ kind, chars: ch });
   }
 
-  // Walk reading and runs together. Kana runs must match the reading verbatim;
-  // kanji runs consume everything up to the next kana run match (or end).
   let i = 0;
   const out: Segment[] = [];
   for (let r = 0; r < runs.length; r++) {
@@ -32,11 +28,9 @@ export function splitWithReading(word: string, reading: string): Segment[] {
         out.push({ t: run.chars });
         i += run.chars.length;
       } else {
-        // misalignment — fall back to whole-word ruby
         return [{ t: word, r: reading }];
       }
     } else {
-      // kanji: find next kana run to bound it
       const nextKana = runs.slice(r + 1).find((x) => x.kind === "kana");
       let end: number;
       if (nextKana) {
@@ -71,27 +65,20 @@ export function Furigana({
   const rtSize =
     size === "xl" ? "text-sm" : size === "lg" ? "text-xs" : size === "md" ? "text-[10px]" : "text-[9px]";
   return (
-    <ruby className={"jp " + (className ?? "")}>
-      {segs.map((s, i) => (
-        <span key={i} className="inline-block">
-          {s.t}
-          <rt className={"text-muted font-normal leading-none " + rtSize}>{s.r ?? ""}</rt>
-        </span>
-      ))}
-    </ruby>
-  );
-}
-
-// Renders pre-segmented Japanese text (sentence).
-export function FuriganaText({ pairs, className }: { pairs: Segment[]; className?: string }) {
-  return (
-    <ruby className={"jp " + (className ?? "")}>
-      {pairs.map((s, i) => (
-        <span key={i} className="inline-block">
-          {s.t}
-          <rt className="text-muted font-normal leading-none text-[10px]">{s.r ?? ""}</rt>
-        </span>
-      ))}
+    <ruby className={"jp ruby-under " + (className ?? "")}>
+      {segs.map((s, i) =>
+        s.r ? (
+          <Fragment key={i}>
+            {s.t}
+            <rt className={"text-muted font-normal " + rtSize}>{s.r}</rt>
+          </Fragment>
+        ) : (
+          <Fragment key={i}>
+            {s.t}
+            <rt> </rt>
+          </Fragment>
+        )
+      )}
     </ruby>
   );
 }

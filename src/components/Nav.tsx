@@ -1,17 +1,13 @@
 import Link from "next/link";
-import { Flame, BookOpen, Languages, Sparkles, Headphones, FileText, BarChart3, GraduationCap } from "lucide-react";
+import { Flame, BookOpen, Languages, Sparkles, Home as HomeIcon, BarChart3 } from "lucide-react";
 import { getCurrentLevel } from "@/lib/level";
 import { LevelSwitcher } from "@/components/LevelSwitcher";
+import { PracticeMenu } from "@/components/PracticeMenu";
 
 const links = [
-  { href: "/", label: "Home", icon: GraduationCap },
-  { href: "/review", label: "Review", icon: Sparkles },
+  { href: "/", label: "Home", icon: HomeIcon },
   { href: "/grammar", label: "Grammar", icon: BookOpen },
-  { href: "/vocabulary", label: "Vocab", icon: Languages },
-  { href: "/kanji", label: "Kanji", icon: FileText },
-  { href: "/listening", label: "Listening", icon: Headphones },
-  { href: "/reading", label: "Reading", icon: FileText },
-  { href: "/stats", label: "Stats", icon: BarChart3 },
+  { href: "/vocabulary", label: "Vocabulary", icon: Languages },
 ];
 
 export async function Nav() {
@@ -23,7 +19,7 @@ export async function Nav() {
           <span className="grid place-items-center w-8 h-8 rounded-lg bg-primary text-white text-sm jp">日</span>
           <span className="hidden sm:inline">Nihongo SRS</span>
         </Link>
-        <nav className="flex items-center gap-1 overflow-x-auto">
+        <nav className="flex items-center gap-1">
           {links.map((l) => {
             const Icon = l.icon;
             return (
@@ -37,8 +33,16 @@ export async function Nav() {
               </Link>
             );
           })}
+          <PracticeMenu />
         </nav>
         <div className="flex-1" />
+        <Link
+          href="/stats"
+          className="hidden sm:inline-flex items-center justify-center w-8 h-8 rounded-md text-muted hover:text-foreground hover:bg-primary-soft transition-colors"
+          title="Stats"
+        >
+          <BarChart3 className="w-4 h-4" />
+        </Link>
         <LevelSwitcher current={level} />
         <StreakBadge />
       </div>

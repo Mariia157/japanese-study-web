@@ -48,10 +48,16 @@ body {
 }
 
 ruby.jp {
-  ruby-position: over;
+  ruby-position: under;
+  ruby-align: center;
 }
 ruby.jp rt {
   user-select: none;
+  line-height: 1;
+  font-feature-settings: "palt";
+}
+ruby.ruby-under {
+  ruby-position: under;
 }
 
 @keyframes pop {

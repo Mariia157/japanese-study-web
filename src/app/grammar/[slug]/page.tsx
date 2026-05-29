@@ -3,8 +3,9 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { db } from "@/lib/db";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/Card";
-import { AddToStudyButton } from "@/components/AddToStudyButton";
 import { QuizBlock } from "@/components/grammar/QuizBlock";
+import { InQueueBadge } from "@/components/InQueueBadge";
+import { createCardIfMissing } from "@/lib/srs/queue";
 
 export const dynamic = "force-dynamic";
 
@@ -17,9 +18,11 @@ export default async function GrammarDetail({ params }: { params: Promise<{ slug
   if (!point) notFound();
 
   const examples = JSON.parse(point.examples) as { jp: string; en: string; note?: string }[];
-  const card = await db.srsCard.findUnique({
+  const cardBefore = await db.srsCard.findUnique({
     where: { itemType_itemId: { itemType: "grammar", itemId: point.id } },
   });
+  const isNew = !cardBefore;
+  await createCardIfMissing("grammar", point.id);
 
   return (
     <div className="max-w-3xl mx-auto space-y-4">
@@ -27,7 +30,7 @@ export default async function GrammarDetail({ params }: { params: Promise<{ slug
         <div className="text-xs uppercase tracking-wide text-muted">N{point.jlptLevel}{point.source ? ` · ${point.source}` : ""}</div>
         <div className="flex items-start justify-between gap-3">
           <h1 className="text-3xl font-semibold">{point.title}</h1>
-          <AddToStudyButton itemType="grammar" itemId={point.id} inQueue={!!card} size="md" />
+          <InQueueBadge added={isNew} />
         </div>
       </header>
 

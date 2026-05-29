@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/Card";
-import { AddToStudyButton } from "@/components/AddToStudyButton";
 import { MnemonicEditor } from "@/components/kanji/MnemonicEditor";
+import { InQueueBadge } from "@/components/InQueueBadge";
+import { createCardIfMissing } from "@/lib/srs/queue";
 
 export const dynamic = "force-dynamic";
 
@@ -15,9 +16,11 @@ export default async function KanjiDetail({ params }: { params: Promise<{ char: 
   });
   if (!kanji) notFound();
 
-  const card = await db.srsCard.findUnique({
+  const cardBefore = await db.srsCard.findUnique({
     where: { itemType_itemId: { itemType: "kanji", itemId: kanji.id } },
   });
+  const isNew = !cardBefore;
+  await createCardIfMissing("kanji", kanji.id);
 
   return (
     <div className="max-w-3xl mx-auto space-y-4">
@@ -41,7 +44,7 @@ export default async function KanjiDetail({ params }: { params: Promise<{ char: 
                 <div className="jp">{(JSON.parse(kanji.kunReadings) as string[]).join("、 ") || "—"}</div>
               </div>
             </div>
-            <AddToStudyButton itemType="kanji" itemId={kanji.id} inQueue={!!card} size="md" />
+            <InQueueBadge added={isNew} />
           </div>
         </CardBody>
       </Card>
