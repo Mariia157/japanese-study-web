@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as wanakana from "wanakana";
 import { Button } from "@/components/ui/Button";
-import { Check, X, RotateCcw, Languages } from "lucide-react";
+import { Check, X, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type Ex = {
@@ -134,20 +134,17 @@ function TextEx({ ex, onAnswer }: { ex: Ex; onAnswer: (correct: boolean) => void
   return (
     <div className="space-y-3">
       <div className="text-base jp">{ex.prompt}</div>
-      <div className="relative">
-        <input
-          ref={inputRef}
-          defaultValue=""
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !checked) check();
-            else if (e.key === "Enter" && checked) onAnswer(correct);
-          }}
-          readOnly={checked}
-          placeholder={ex.type === "translate" ? "Type Japanese (romaji auto-converts)" : "Type the answer…"}
-          className="w-full px-3 py-2 pr-9 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary jp text-base"
-        />
-        <Languages className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />
-      </div>
+      <input
+        ref={inputRef}
+        defaultValue=""
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !checked) check();
+          else if (e.key === "Enter" && checked) onAnswer(correct);
+        }}
+        readOnly={checked}
+        placeholder={ex.type === "translate" ? "Type Japanese (romaji auto-converts)" : "Type the answer…"}
+        className="w-full px-3 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary jp text-base"
+      />
       <p className="text-[11px] text-muted">Type romaji like <code className="px-1 py-0.5 bg-primary-soft rounded font-mono text-[10px]">watashi</code> and it auto-converts to <code className="px-1 py-0.5 bg-primary-soft rounded font-mono text-[10px]">わたし</code>.</p>
       {checked && <FeedbackBlock correct={correct} answer={ex.answer} explanation={ex.explanation} />}
       <div className="flex gap-2">

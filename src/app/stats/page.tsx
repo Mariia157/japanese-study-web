@@ -4,6 +4,7 @@ import { Progress } from "@/components/ui/Progress";
 import { getStats, levelFromXp, ACHIEVEMENT_DEFS, xpToNextLevel } from "@/lib/xp";
 import { JLPT_LEVELS } from "@/lib/utils";
 import { Trophy, Flame, Sparkles } from "lucide-react";
+import { PageHeader } from "@/components/PageHeader";
 
 export const dynamic = "force-dynamic";
 
@@ -71,10 +72,8 @@ export default async function StatsPage() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-3xl font-semibold">Stats</h1>
-        <p className="text-sm text-muted mt-1">Track your study consistency and JLPT progress.</p>
-      </header>
+      <PageHeader kanji="統" title="Stats" />
+      <p className="text-sm text-muted -mt-2">Track your study consistency and JLPT progress.</p>
 
       <div className="grid sm:grid-cols-4 gap-4">
         <StatTile icon={<Flame className="w-4 h-4" />} label="Streak" value={`${stats.streakDays} days`} />

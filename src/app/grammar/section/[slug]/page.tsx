@@ -3,7 +3,6 @@ import { db } from "@/lib/db";
 import { Card, CardBody, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
 import { QuizBlock, type Ex } from "@/components/grammar/QuizBlock";
 import { BackButton } from "@/components/BackButton";
-import { GraduationCap } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -40,10 +39,7 @@ export default async function SectionReview({ params }: { params: Promise<{ slug
     <div className="max-w-3xl mx-auto space-y-4">
       <BackButton />
       <header className="space-y-2">
-        <div className="flex items-center gap-2">
-          <GraduationCap className="w-5 h-5 text-primary" />
-          <h1 className="text-3xl font-semibold">{section.title}</h1>
-        </div>
+        <h1 className="text-4xl font-bold tracking-tight">{section.title}</h1>
         <p className="text-sm text-muted">
           Section review — {exercises.length} new questions mixing all {totalPoints} topics in this section.
           {!unlocked && ` (${totalPoints - learnedCount} topics still need to reach the review state to officially complete this section.)`}

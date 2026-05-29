@@ -3,10 +3,11 @@ import { db } from "@/lib/db";
 import { Card, CardBody, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Progress } from "@/components/ui/Progress";
-import { ChevronRight, GraduationCap, BookOpen } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { getCurrentLevel } from "@/lib/level";
 import { getT, getLocale } from "@/lib/i18n";
 import { pickL } from "@/lib/i18n-shared";
+import { PageHeader } from "@/components/PageHeader";
 
 export const dynamic = "force-dynamic";
 
@@ -37,10 +38,8 @@ export default async function GrammarPage() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-3xl font-semibold">{t("grammar.title")}</h1>
-        <p className="text-sm text-muted mt-1">{t("grammar.subtitle", { level })}</p>
-      </header>
+      <PageHeader kanji="文" eyebrow={`N${level}`} title={t("grammar.title")} />
+      <p className="text-sm text-muted -mt-2">{t("grammar.subtitle", { level })}</p>
 
       {sections.length === 0 && orphans.length === 0 ? (
         <Card>
@@ -60,10 +59,7 @@ export default async function GrammarPage() {
                 <CardHeader>
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <GraduationCap className="w-4 h-4 text-primary" />
-                        <CardTitle>{pickL(locale, s.title, s.titleUk)}</CardTitle>
-                      </div>
+                      <CardTitle>{pickL(locale, s.title, s.titleUk)}</CardTitle>
                       {(pickL(locale, s.summary, s.summaryUk)) && <CardDescription>{pickL(locale, s.summary, s.summaryUk)}</CardDescription>}
                     </div>
                     {s.reviews.length > 0 && (
@@ -92,10 +88,7 @@ export default async function GrammarPage() {
                               : "border-border bg-background hover:border-primary hover:bg-primary-soft")
                           }
                         >
-                          <span className="flex items-center gap-2 min-w-0">
-                            <BookOpen className="w-3.5 h-3.5 text-primary shrink-0" />
-                            <span className="text-sm font-medium truncate">{pickL(locale, p.title, p.titleUk)}</span>
-                          </span>
+                          <span className="text-sm font-medium truncate">{pickL(locale, p.title, p.titleUk)}</span>
                           <ChevronRight className="w-3.5 h-3.5 text-muted shrink-0" />
                         </div>
                       </Link>

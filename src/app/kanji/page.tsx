@@ -4,6 +4,7 @@ import { Card, CardBody } from "@/components/ui/Card";
 import { getCurrentLevel } from "@/lib/level";
 import { getT, getLocale } from "@/lib/i18n";
 import { pickL } from "@/lib/i18n-shared";
+import { PageHeader } from "@/components/PageHeader";
 
 export const dynamic = "force-dynamic";
 
@@ -19,10 +20,8 @@ export default async function KanjiPage() {
 
   return (
     <div className="space-y-4">
-      <header>
-        <h1 className="text-3xl font-semibold">{t("kanji.title")}</h1>
-        <p className="text-sm text-muted mt-1">{t("kanji.summary", { level, count: kanji.length })}</p>
-      </header>
+      <PageHeader kanji="漢" eyebrow={`N${level}`} title={t("kanji.title")} />
+      <p className="text-sm text-muted -mt-2">{t("kanji.summary", { level, count: kanji.length })}</p>
       {kanji.length === 0 ? (
         <Card>
           <CardBody className="py-12 text-center text-muted">{t("kanji.empty")}</CardBody>

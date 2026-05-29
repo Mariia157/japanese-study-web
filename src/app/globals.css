@@ -1,33 +1,50 @@
 @import "tailwindcss";
 
 :root {
-  /* Base */
-  --background: #ffffff;
-  --surface: #f4faf9;
-  --surface-2: #e6f4f1;
-  --foreground: #012D4E;
-  --muted: #5a7896;
-  --border: #d8e6e3;
+  /* Ukiyo-e woodblock palette */
+  --background: #f4ead2;        /* aged washi paper */
+  --surface: #fbf3da;            /* lighter washi */
+  --surface-2: #e8dcb6;          /* deeper washi */
+  --foreground: #1e2b3a;         /* sumi ink */
+  --muted: #6b6147;              /* sepia */
+  --border: #1e2b3a;
+  --border-soft: #c9bf99;
 
-  /* Brand */
-  --primary: #0AB59E;
-  --primary-hover: #098e7c;
-  --primary-soft: #d8f3ee;
-  --primary-soft-2: #b5e8df;
-  --primary-light: #0ED1B2;
+  --indigo: #1e3a5c;             /* ai-iro (indigo) */
+  --indigo-2: #2a4d72;
+  --indigo-soft: #d5dde8;
 
-  --accent: #C92E43;        /* koi red */
-  --accent-hover: #b22839;
-  --accent-soft: #fbe0e4;
-  --accent-dark: #841930;
+  --vermilion: #d23c2c;          /* shu (cinnabar) */
+  --vermilion-2: #b02f22;
+  --vermilion-soft: #f7d8d0;
 
-  --navy: #012D4E;
-  --navy-2: #013F69;
+  --ochre: #d9a23d;              /* kuchiba (yellow ochre) */
+  --ochre-2: #b8852a;
+  --ochre-soft: #f3e3b0;
+
+  --pine: #3a6e4e;               /* matsu (pine green) */
+  --pine-2: #2d5740;
+  --pine-soft: #cfdfd0;
+
+  /* Aliases — preserve existing component contracts */
+  --primary: var(--indigo);
+  --primary-hover: var(--indigo-2);
+  --primary-soft: var(--indigo-soft);
+  --primary-soft-2: #b4c2d4;
+  --primary-light: #4a6789;
+
+  --accent: var(--vermilion);
+  --accent-hover: var(--vermilion-2);
+  --accent-soft: var(--vermilion-soft);
+  --accent-dark: #841d12;
+
+  --navy: var(--indigo);
+  --navy-2: var(--indigo-2);
   --sky: #75A5D3;
 
-  --success: #0AB59E;
-  --warning: #f59e0b;
-  --danger: #C92E43;
+  --success: var(--pine);
+  --warning: var(--ochre);
+  --danger: var(--vermilion);
 }
 
 @theme inline {
@@ -37,6 +54,17 @@
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-border: var(--border);
+  --color-border-soft: var(--border-soft);
+
+  --color-indigo: var(--indigo);
+  --color-indigo-soft: var(--indigo-soft);
+  --color-vermilion: var(--vermilion);
+  --color-vermilion-soft: var(--vermilion-soft);
+  --color-ochre: var(--ochre);
+  --color-ochre-soft: var(--ochre-soft);
+  --color-pine: var(--pine);
+  --color-pine-soft: var(--pine-soft);
+
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
   --color-primary-soft: var(--primary-soft);
@@ -52,56 +80,106 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-danger: var(--danger);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-jp: "Noto Sans JP", var(--font-geist-sans);
+  --font-serif: var(--font-mincho), "Shippori Mincho", "Noto Serif JP", Georgia, serif;
 }
 
 html {
   font-size: 20px;
   background-color: var(--background);
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='40' viewBox='0 0 80 40'><g fill='none' stroke='%230AB59E' stroke-width='1.4' opacity='0.30'><circle cx='0' cy='40' r='40'/><circle cx='0' cy='40' r='30'/><circle cx='0' cy='40' r='20'/><circle cx='0' cy='40' r='10'/><circle cx='80' cy='40' r='40'/><circle cx='80' cy='40' r='30'/><circle cx='80' cy='40' r='20'/><circle cx='80' cy='40' r='10'/><circle cx='40' cy='0' r='40'/><circle cx='40' cy='0' r='30'/><circle cx='40' cy='0' r='20'/><circle cx='40' cy='0' r='10'/></g></svg>");
-  background-repeat: repeat;
-  background-attachment: fixed;
 }
 
 body {
   background: transparent !important;
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-feature-settings: "tnum";
 }
 
 .jp {
   font-family: "Noto Sans JP", var(--font-geist-sans), sans-serif;
 }
 
-ruby.jp {
-  ruby-position: under;
-  ruby-align: center;
-}
-ruby.jp rt {
-  user-select: none;
-  line-height: 1;
-  font-feature-settings: "palt";
-}
-ruby.ruby-under {
-  ruby-position: under;
+.serif, .display {
+  font-family: var(--font-mincho), "Shippori Mincho", "Noto Serif JP", Georgia, serif;
+  font-weight: 500;
+  letter-spacing: -0.015em;
 }
 
-/* Brand gradients */
-.bg-streak-gradient {
-  background-image: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+ruby.jp { ruby-position: under; ruby-align: center; }
+ruby.jp rt { user-select: none; line-height: 1; font-feature-settings: "palt"; }
+
+/* ============= Decorative ukiyo-e elements ============= */
+
+/* 3-stripe woodblock band — indigo / vermilion / ochre */
+.tri-band {
+  background-image:
+    linear-gradient(
+      to bottom,
+      var(--indigo) 0,
+      var(--indigo) 33.33%,
+      var(--vermilion) 33.33%,
+      var(--vermilion) 66.66%,
+      var(--ochre) 66.66%,
+      var(--ochre) 100%
+    );
+  height: 12px;
 }
-.bg-primary-gradient {
-  background-image: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 50%, var(--navy-2) 100%);
+
+/* Seigaiha-style wave SVG ribbon — taller, denser, ink-blue */
+.wave-band {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='30' viewBox='0 0 60 30'><g fill='none' stroke='%231e3a5c' stroke-width='2'><path d='M-15 30 Q0 0 15 30 Q30 0 45 30 Q60 0 75 30'/></g></svg>");
+  background-repeat: repeat-x;
+  background-size: 60px 30px;
+  background-position: center;
+  height: 30px;
 }
-.bg-koi-gradient {
-  background-image: linear-gradient(135deg, var(--primary) 0%, var(--navy-2) 100%);
+
+/* Chevron / asanoha-inspired dots strip */
+.dot-band {
+  background-image: radial-gradient(circle, var(--foreground) 1.5px, transparent 2px);
+  background-size: 12px 12px;
+  background-position: 0 50%;
+  background-repeat: repeat-x;
+  height: 12px;
+}
+
+/* Numeric tag — bold black-on-cream entry number */
+.entry-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  padding: 0 0.5rem;
+  height: 1.6rem;
+  background: var(--foreground);
+  color: var(--background);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+/* Vermilion accent tag */
+.tag-red {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.15rem 0.6rem;
+  background: var(--vermilion);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
 @keyframes pop {
-  0% { transform: scale(0.95); opacity: 0; }
-  60% { transform: scale(1.03); }
+  0% { transform: scale(0.97); opacity: 0; }
+  60% { transform: scale(1.02); }
   100% { transform: scale(1); opacity: 1; }
 }
 .animate-pop { animation: pop 0.18s ease-out; }

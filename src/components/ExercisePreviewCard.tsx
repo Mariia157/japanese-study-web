@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Sparkles, ArrowRight } from "lucide-react";
 
 export function ExercisePreviewCard({
   href,
@@ -46,9 +45,7 @@ export function ExercisePreviewCard({
         <h3 className="font-semibold text-base line-clamp-2 flex-1">{title}</h3>
         <Link href={href}>
           <Button size="sm" className="w-full">
-            <Sparkles className="w-4 h-4" />
-            {startLabel}
-            <ArrowRight className="w-4 h-4" />
+            {startLabel} →
           </Button>
         </Link>
       </div>

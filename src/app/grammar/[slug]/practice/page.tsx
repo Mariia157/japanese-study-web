@@ -32,7 +32,7 @@ export default async function GrammarPractice({ params }: { params: Promise<{ sl
       <BackButton label={t("common.back")} />
       <header className="space-y-2">
         <div className="text-xs uppercase tracking-wide text-muted">N{point.jlptLevel}{point.source ? ` · ${point.source}` : ""} · {t("practice.title_suffix")}</div>
-        <h1 className="text-3xl font-semibold">{pickL(locale, point.title, point.titleUk)}</h1>
+        <h1 className="text-4xl font-bold tracking-tight">{pickL(locale, point.title, point.titleUk)}</h1>
       </header>
 
       {exercises.length === 0 ? (

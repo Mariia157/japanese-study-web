@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { ChevronDown, Languages } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LOCALES, type Locale } from "@/lib/i18n-shared";
 
@@ -62,7 +62,6 @@ export function LocaleSwitcher({ current }: { current: Locale }) {
         className="inline-flex items-center gap-1 h-8 px-3 rounded-md text-sm font-semibold bg-primary-soft text-primary hover:bg-primary-soft-2 transition-colors"
         title="Language"
       >
-        <Languages className="w-3.5 h-3.5" />
         {currentMeta.flag}
         <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", open && "rotate-180")} />
       </button>

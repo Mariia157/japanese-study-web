@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Eye, EyeOff, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
+import { Eye, EyeOff, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AudioPlayer } from "@/components/AudioPlayer";
 
@@ -50,9 +50,8 @@ export function ListeningExercise({
           onClick={() => setOpen((v) => !v)}
           className="w-full sm:w-auto"
         >
-          {open ? <ChevronUp className="w-4 h-4" /> : <Sparkles className="w-4 h-4" />}
           {open ? collapseLabel : startLabel}
-          {open ? null : <ChevronDown className="w-4 h-4" />}
+          {open ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
         </Button>
       )}
       {open && (

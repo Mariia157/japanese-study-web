@@ -4,6 +4,7 @@ import { ExercisePreviewCard } from "@/components/ExercisePreviewCard";
 import { getCurrentLevel } from "@/lib/level";
 import { getT, getLocale } from "@/lib/i18n";
 import { pickL } from "@/lib/i18n-shared";
+import { PageHeader } from "@/components/PageHeader";
 
 export const dynamic = "force-dynamic";
 
@@ -18,10 +19,8 @@ export default async function ReadingPage() {
 
   return (
     <div className="space-y-4">
-      <header>
-        <h1 className="text-3xl font-semibold">{t("reading.title")}</h1>
-        <p className="text-sm text-muted mt-1">{t("reading.summary", { level, count: items.length })}</p>
-      </header>
+      <PageHeader kanji="読" eyebrow={`N${level}`} title={t("reading.title")} />
+      <p className="text-sm text-muted -mt-2">{t("reading.summary", { level, count: items.length })}</p>
 
       {items.length === 0 ? (
         <Card>

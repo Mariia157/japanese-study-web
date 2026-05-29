@@ -10,7 +10,6 @@ import { BackButton } from "@/components/BackButton";
 import { createCardIfMissing } from "@/lib/srs/queue";
 import { getT, getLocale } from "@/lib/i18n";
 import { pickL } from "@/lib/i18n-shared";
-import { Sparkles, ArrowRight } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -37,7 +36,7 @@ export default async function GrammarDetail({ params }: { params: Promise<{ slug
       <header className="space-y-2">
         <div className="text-xs uppercase tracking-wide text-muted">N{point.jlptLevel}{point.source ? ` · ${point.source}` : ""}</div>
         <div className="flex items-start justify-between gap-3">
-          <h1 className="text-3xl font-semibold">{pickL(locale, point.title, point.titleUk)}</h1>
+          <h1 className="text-4xl font-bold tracking-tight">{pickL(locale, point.title, point.titleUk)}</h1>
           <InQueueBadge added={isNew} addedLabel={t("common.added_to_deck")} inDeckLabel={t("common.in_your_deck")} />
         </div>
       </header>
@@ -72,11 +71,7 @@ export default async function GrammarDetail({ params }: { params: Promise<{ slug
               <p className="text-sm text-muted">{t("grammar.ready_desc", { count: point.exercises.length })}</p>
             </div>
             <Link href={`/grammar/${point.slug}/practice`}>
-              <Button size="lg">
-                <Sparkles className="w-4 h-4" />
-                {t("grammar.start_practice")}
-                <ArrowRight className="w-4 h-4" />
-              </Button>
+              <Button size="lg">{t("grammar.start_practice")} →</Button>
             </Link>
           </CardBody>
         </Card>

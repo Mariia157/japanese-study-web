@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Headphones, FileText, ChevronDown, GraduationCap } from "lucide-react";
+import { Headphones, FileText, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function PracticeMenu({
@@ -57,10 +57,9 @@ export function PracticeMenu({
       <button
         ref={buttonRef}
         onClick={() => setOpen((s) => !s)}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm text-muted hover:text-foreground hover:bg-primary-soft transition-colors whitespace-nowrap"
+        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-sm text-muted hover:text-foreground hover:bg-primary-soft transition-colors whitespace-nowrap"
       >
-        <GraduationCap className="w-4 h-4" />
-        <span className="hidden md:inline">{practiceLabel}</span>
+        <span>{practiceLabel}</span>
         <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", open && "rotate-180")} />
       </button>
       {mounted && open && coords &&

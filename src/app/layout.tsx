@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Noto_Sans_JP } from "next/font/google";
+import { Geist, Noto_Sans_JP, Shippori_Mincho } from "next/font/google";
 import "./globals.css";
 import { Nav } from "@/components/Nav";
 
@@ -12,6 +12,12 @@ const notoJp = Noto_Sans_JP({
   variable: "--font-noto-jp",
   subsets: ["latin"],
   weight: ["400", "500", "700"],
+});
+
+const mincho = Shippori_Mincho({
+  variable: "--font-mincho",
+  subsets: ["latin"],
+  weight: ["500", "700"],
 });
 
 export const metadata: Metadata = {
@@ -36,7 +42,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${notoJp.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${notoJp.variable} ${mincho.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <Nav />

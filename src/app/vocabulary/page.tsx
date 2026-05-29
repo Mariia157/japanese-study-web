@@ -8,6 +8,7 @@ import { pickL } from "@/lib/i18n-shared";
 import type { StringKey } from "@/lib/i18n";
 import { Check, Clock, Languages, Activity, Tag, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { PageHeader } from "@/components/PageHeader";
 
 export const dynamic = "force-dynamic";
 
@@ -69,12 +70,8 @@ export default async function VocabPage({
 
   return (
     <div className="space-y-4">
-      <header>
-        <h1 className="text-3xl font-semibold">{t("vocab.title")}</h1>
-        <p className="text-sm text-muted mt-1">
-          {t("vocab.summary", { level, shown: filtered.length, total: counts.all })}
-        </p>
-      </header>
+      <PageHeader kanji="語" eyebrow={`N${level}`} title={t("vocab.title")} />
+      <p className="text-sm text-muted -mt-2">{t("vocab.summary", { level, shown: filtered.length, total: counts.all })}</p>
 
       <div className="flex items-center gap-1 overflow-x-auto pb-1 -mx-1 px-1">
         {CATEGORIES.map((c) => {

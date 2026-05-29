@@ -27,7 +27,7 @@ export default async function ReadingDetail({ params }: { params: Promise<{ id: 
     <div className="max-w-3xl mx-auto space-y-4">
       <BackButton label={t("common.back")} />
       <div className="text-xs uppercase tracking-wide text-muted">N{item.jlptLevel}</div>
-      <h1 className="text-3xl font-semibold">{title}</h1>
+      <h1 className="text-4xl font-bold tracking-tight">{title}</h1>
 
       {item.imageUrl && (
         <div className="relative w-full h-64 sm:h-80 rounded-xl overflow-hidden border border-border bg-primary-soft">

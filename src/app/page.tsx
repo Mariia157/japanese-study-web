@@ -89,48 +89,57 @@ export default async function Home() {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-col sm:flex-row sm:items-end gap-3 justify-between">
-        <div>
-          <p className="text-sm text-muted">{t("home.welcome")}</p>
-          <h1 className="text-3xl font-semibold">{t("home.title")}</h1>
+      <header className="relative">
+        <div className="flex items-stretch gap-4 sm:gap-6">
+          <div className="flex items-center justify-center bg-vermilion text-white px-4 sm:px-6 py-4 jp serif text-5xl sm:text-6xl shrink-0">学</div>
+          <div className="flex-1 flex flex-col justify-between py-2 min-w-0">
+            <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] font-bold">
+              <span className="tag-red">N{data.jlpt}</span>
+              <span className="text-muted">— {t("home.welcome")} —</span>
+            </div>
+            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground leading-[1.05]">{t("home.title")}</h1>
+          </div>
+          <div className="self-end pb-1">
+            <Link href="/review">
+              <Button size="lg">{t("home.start_review", { count: startCount })}</Button>
+            </Link>
+          </div>
         </div>
-        <Link href="/review">
-          <Button size="lg">
-            <Sparkles className="w-4 h-4" />
-            {t("home.start_review", { count: startCount })}
-          </Button>
-        </Link>
+        <div className="wave-band mt-4" />
       </header>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          icon={<Flame className="w-4 h-4" />}
-          label={t("home.streak")}
-          value={t(streakDays === 1 ? "home.streak_days" : "home.streak_days_pl", { n: streakDays })}
+      {/* Ukiyo-e color-block tiles */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <StatTile
+          eyebrow={t("home.streak")}
+          number={String(streakDays)}
+          unit={t(streakDays === 1 ? "home.streak_days" : "home.streak_days_pl", { n: "" }).trim()}
           subtitle={nextMilestoneLabel(streakDays, t)}
-          footer={<Progress value={streakMilestonePct(streakDays)} barClassName="bg-white" className="bg-white/25" />}
-          accent
+          progress={streakMilestonePct(streakDays)}
+          color="vermilion"
         />
-        <StatCard
-          icon={<Sparkles className="w-4 h-4" />}
-          label={t("home.xp")}
-          value={data.stats.xp.toLocaleString()}
+        <StatTile
+          eyebrow={t("home.xp")}
+          number={data.stats.xp.toLocaleString()}
+          unit="XP"
           subtitle={t("home.level_xp_progress", { level, current, needed })}
-          footer={<Progress value={(current / needed) * 100} />}
+          progress={(current / needed) * 100}
+          color="indigo"
         />
-        <StatCard
-          icon={<Calendar className="w-4 h-4" />}
-          label={t("home.reviews_due")}
-          value={data.dueCount.toString()}
+        <StatTile
+          eyebrow={t("home.reviews_due")}
+          number={data.dueCount.toString()}
           subtitle={t("home.reviews_breakdown", { newCount: data.newCount, learningCount: data.learningCount })}
-          footer={<Progress value={data.dueCount === 0 ? 0 : 100} />}
+          progress={data.dueCount === 0 ? 0 : 100}
+          color="ochre"
         />
-        <StatCard
-          icon={<Target className="w-4 h-4" />}
-          label={t("home.daily_goal")}
-          value={`${data.todayReviews}/${data.stats.dailyGoal}`}
+        <StatTile
+          eyebrow={t("home.daily_goal")}
+          number={String(data.todayReviews)}
+          unit={`/ ${data.stats.dailyGoal}`}
           subtitle={t("home.to_go", { n: Math.max(0, data.stats.dailyGoal - data.todayReviews) })}
-          footer={<Progress value={goalPct} />}
+          progress={goalPct}
+          color="pine"
         />
       </div>
 
@@ -157,20 +166,16 @@ export default async function Home() {
             </div>
             {data.queuePreview.length > 0 && (
               <Link href="/review">
-                <Button>
-                  <Sparkles className="w-4 h-4" />
-                  {t("common.start")}
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
+                <Button>{t("common.start")} →</Button>
               </Link>
             )}
           </div>
         </CardHeader>
         <CardBody className="space-y-4">
           <div className="grid grid-cols-3 gap-3">
-            <TypePill icon={<Languages className="w-4 h-4" />} label={t("home.cat.vocabulary")} count={data.dueByType.vocab} href="/vocabulary" />
-            <TypePill icon={<FileText className="w-4 h-4" />} label={t("home.cat.kanji")} count={data.dueByType.kanji} href="/kanji" />
-            <TypePill icon={<BookOpen className="w-4 h-4" />} label={t("home.cat.grammar")} count={data.dueByType.grammar} href="/grammar" />
+            <TypePill label={t("home.cat.vocabulary")} count={data.dueByType.vocab} href="/vocabulary" />
+            <TypePill label={t("home.cat.kanji")} count={data.dueByType.kanji} href="/kanji" />
+            <TypePill label={t("home.cat.grammar")} count={data.dueByType.grammar} href="/grammar" />
           </div>
 
           {data.queuePreview.length > 0 ? (
@@ -203,34 +208,45 @@ export default async function Home() {
   );
 }
 
-function StatCard({
-  icon,
-  label,
-  value,
+type StatColor = "vermilion" | "indigo" | "ochre" | "pine";
+
+function StatTile({
+  eyebrow,
+  number,
+  unit,
   subtitle,
-  footer,
-  accent,
+  progress,
+  color,
 }: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
+  eyebrow: string;
+  number: string;
+  unit?: string;
   subtitle?: string;
-  footer?: React.ReactNode;
-  accent?: boolean;
+  progress: number;
+  color: StatColor;
 }) {
+  const palette: Record<StatColor, { bg: string; bar: string; barBg: string; sub: string; band: string }> = {
+    vermilion: { bg: "bg-vermilion text-white", bar: "bg-white", barBg: "bg-white/25", sub: "text-white/80", band: "bg-indigo" },
+    indigo:    { bg: "bg-indigo text-white",     bar: "bg-ochre", barBg: "bg-white/20", sub: "text-white/75", band: "bg-vermilion" },
+    ochre:     { bg: "bg-ochre text-foreground", bar: "bg-indigo", barBg: "bg-foreground/15", sub: "text-foreground/70", band: "bg-vermilion" },
+    pine:      { bg: "bg-pine text-white",       bar: "bg-ochre", barBg: "bg-white/20", sub: "text-white/75", band: "bg-vermilion" },
+  };
+  const p = palette[color];
   return (
-    <Card className={"h-full " + (accent ? "bg-streak-gradient text-white border-0" : "")}>
-      <div className="grid grid-rows-[auto_auto_auto_1fr_auto] h-full p-4 gap-1.5">
-        <div className={"flex items-center gap-1.5 text-xs " + (accent ? "text-white/90" : "text-muted")}>
-          {icon}
-          <span>{label}</span>
+    <div className={`relative flex flex-col`}>
+      <div className={`h-2 ${p.band}`} />
+      <div className={`p-5 flex flex-col gap-3 flex-1 ${p.bg}`}>
+        <div className={`text-[10px] uppercase tracking-[0.2em] font-bold ${p.sub}`}>{eyebrow}</div>
+        <div className="flex items-baseline gap-2">
+          <span className="text-6xl serif leading-none tracking-tight">{number}</span>
+          {unit && <span className={`text-sm font-medium ${p.sub}`}>{unit}</span>}
         </div>
-        <div className="text-2xl font-semibold leading-tight">{value}</div>
-        <p className={"text-xs min-h-[1rem] " + (accent ? "text-white/80" : "text-muted")}>{subtitle ?? " "}</p>
-        <div />
-        <div className="pt-1">{footer ?? <div className="h-2" />}</div>
+        <p className={`text-xs leading-snug min-h-[2.4em] ${p.sub}`}>{subtitle ?? ""}</p>
+        <div className="mt-auto">
+          <Progress value={progress} barClassName={p.bar} emptyClassName={p.barBg} />
+        </div>
       </div>
-    </Card>
+    </div>
   );
 }
 
@@ -284,8 +300,7 @@ function LevelProgressSection({
                 : t("home.switch_level_hint")}
             </CardDescription>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-koi-gradient text-white">
-            <Trophy className="w-4 h-4" />
+          <div className="px-3 py-1.5 rounded-md bg-navy text-white">
             <span className="text-sm font-medium">{t("home.level_label", { n: xpLevel })}</span>
           </div>
         </div>
@@ -299,24 +314,21 @@ function LevelProgressSection({
           <Progress value={xpNeeded === 0 ? 0 : (xpCurrent / xpNeeded) * 100} />
         </div>
         <div className="space-y-3">
-          <ProgressRow t={t} icon={<BookOpen className="w-4 h-4" />} label={t("home.cat.grammar")} data={progress.grammar} />
-          <ProgressRow t={t} icon={<Languages className="w-4 h-4" />} label={t("home.cat.vocabulary")} data={progress.vocab} />
-          <ProgressRow t={t} icon={<FileText className="w-4 h-4" />} label={t("home.cat.kanji")} data={progress.kanji} />
+          <ProgressRow t={t} label={t("home.cat.grammar")} data={progress.grammar} />
+          <ProgressRow t={t} label={t("home.cat.vocabulary")} data={progress.vocab} />
+          <ProgressRow t={t} label={t("home.cat.kanji")} data={progress.kanji} />
         </div>
       </CardBody>
     </Card>
   );
 }
 
-function ProgressRow({ t, icon, label, data }: { t: T; icon: React.ReactNode; label: string; data: CategoryProgress }) {
+function ProgressRow({ t, label, data }: { t: T; label: string; data: CategoryProgress }) {
   const pct = data.total === 0 ? 0 : Math.round((data.learned / data.total) * 100);
   return (
     <div className="space-y-1.5">
       <div className="flex items-center justify-between text-sm">
-        <span className="inline-flex items-center gap-1.5 font-medium">
-          <span className="text-primary">{icon}</span>
-          {label}
-        </span>
+        <span className="font-medium">{label}</span>
         <span className="text-xs text-muted font-mono">
           {t("home.progress_row", { learned: data.learned, learning: data.learning, total: data.total })}
         </span>
@@ -326,13 +338,12 @@ function ProgressRow({ t, icon, label, data }: { t: T; icon: React.ReactNode; la
   );
 }
 
-function TypePill({ icon, label, count, href }: { icon: React.ReactNode; label: string; count: number; href: string }) {
+function TypePill({ label, count, href }: { label: string; count: number; href: string }) {
   return (
     <Link
       href={href}
-      className="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-border hover:border-primary hover:bg-primary-soft transition-colors"
+      className="flex items-center gap-2 px-3 py-2.5 rounded-md border border-border hover:border-primary hover:bg-primary-soft transition-colors"
     >
-      <span className="text-primary">{icon}</span>
       <span className="text-sm font-medium">{label}</span>
       <span className="ml-auto text-xs font-mono text-muted">{count}</span>
     </Link>
