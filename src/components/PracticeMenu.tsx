@@ -5,12 +5,19 @@ import { createPortal } from "react-dom";
 import { Headphones, FileText, ChevronDown, GraduationCap } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const ITEMS = [
-  { href: "/listening", label: "Listening", icon: Headphones, jp: "聴解" },
-  { href: "/reading", label: "Reading", icon: FileText, jp: "読解" },
-];
-
-export function PracticeMenu() {
+export function PracticeMenu({
+  practiceLabel = "Practice",
+  listeningLabel = "Listening",
+  readingLabel = "Reading",
+}: {
+  practiceLabel?: string;
+  listeningLabel?: string;
+  readingLabel?: string;
+}) {
+  const ITEMS = [
+    { href: "/listening", label: listeningLabel, icon: Headphones, jp: "聴解" },
+    { href: "/reading", label: readingLabel, icon: FileText, jp: "読解" },
+  ];
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
@@ -53,7 +60,7 @@ export function PracticeMenu() {
         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm text-muted hover:text-foreground hover:bg-primary-soft transition-colors whitespace-nowrap"
       >
         <GraduationCap className="w-4 h-4" />
-        <span className="hidden md:inline">Practice</span>
+        <span className="hidden md:inline">{practiceLabel}</span>
         <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", open && "rotate-180")} />
       </button>
       {mounted && open && coords &&

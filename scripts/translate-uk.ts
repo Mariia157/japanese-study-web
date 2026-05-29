@@ -1,0 +1,1095 @@
+// One-shot translation overlay: rewrites English content fields in the DB into Ukrainian.
+// Japanese fields (word, reading, transcript, text, examples[].jp, kanji.character) are NOT touched.
+//
+// Run after seed scripts: npm run translate:uk
+import { PrismaClient } from "@prisma/client";
+import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import "dotenv/config";
+
+const url = process.env.DATABASE_URL?.replace(/^file:/, "") ?? "./prisma/dev.db";
+const db = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url }) });
+
+// ===== Translation dictionaries =====
+
+// Common single-word vocabulary translations (English meaning → Ukrainian).
+// Case-sensitive exact match against the meaning string.
+const VOCAB_MAP: Record<string, string> = {
+  // Greetings & expressions
+  "hello": "привіт",
+  "good afternoon": "добрий день",
+  "good morning": "доброго ранку",
+  "thank you": "дякую",
+  "goodbye": "до побачення",
+  "yes": "так",
+  "no": "ні",
+  // Pronouns
+  "I": "я",
+  "me": "мене",
+  "you": "ти",
+  "I, me": "я",
+  // People
+  "student": "студент",
+  "teacher": "вчитель",
+  "friend": "друг",
+  "Japanese person": "японець",
+  "American": "американець",
+  "person": "людина",
+  "my mother": "моя мама",
+  "my father": "мій тато",
+  "my older brother": "мій старший брат",
+  "my older sister": "моя старша сестра",
+  "my younger brother": "мій молодший брат",
+  "my younger sister": "моя молодша сестра",
+  "someone's mother": "мама (чужа)",
+  "someone's father": "тато (чужий)",
+  "family": "родина",
+  "child": "дитина",
+  // Body
+  "eye": "око",
+  "mouth": "рот",
+  "hand": "рука",
+  "head": "голова",
+  // Time
+  "now": "зараз",
+  "today": "сьогодні",
+  "tomorrow": "завтра",
+  "yesterday": "вчора",
+  "every day": "щодня",
+  "morning": "ранок",
+  "noon": "полудень",
+  "daytime": "день",
+  "night": "ніч",
+  "week": "тиждень",
+  "Monday": "понеділок",
+  "Tuesday": "вівторок",
+  "Wednesday": "середа",
+  "Thursday": "четвер",
+  "Friday": "п'ятниця",
+  "Saturday": "субота",
+  "Sunday": "неділя",
+  "weekend": "вихідні",
+  "next year": "наступного року",
+  "what time": "котра година",
+  // Places
+  "house": "будинок",
+  "home": "дім",
+  "school": "школа",
+  "university": "університет",
+  "library": "бібліотека",
+  "shop": "магазин",
+  "hospital": "лікарня",
+  "station": "станція",
+  "park": "парк",
+  "bank": "банк",
+  "post office": "пошта",
+  "country": "країна",
+  "Japan": "Японія",
+  "Tokyo": "Токіо",
+  "Kyoto": "Кіото",
+  "sea": "море",
+  "mountain": "гора",
+  "river": "річка",
+  // Nature & elements
+  "sun": "сонце",
+  "day": "день",
+  "moon": "місяць (небо)",
+  "month": "місяць",
+  "fire": "вогонь",
+  "water": "вода",
+  "tree": "дерево",
+  "wood": "дерево (матеріал)",
+  "rain": "дощ",
+  "weather": "погода",
+  // Objects
+  "book": "книга",
+  "umbrella": "парасоля",
+  "bag": "сумка",
+  "shoes": "взуття",
+  "watch": "годинник",
+  "clock": "годинник",
+  "newspaper": "газета",
+  "telephone": "телефон",
+  "TV": "телевізор",
+  "radio": "радіо",
+  "car": "машина",
+  "train": "потяг",
+  "bicycle": "велосипед",
+  "pencil": "олівець",
+  "pen": "ручка",
+  "notebook": "зошит",
+  "chair": "стілець",
+  "desk": "стіл (письмовий)",
+  "photo": "фотографія",
+  // Locations (relative)
+  "above": "над",
+  "on top": "зверху",
+  "below": "під",
+  "under": "знизу",
+  "inside": "усередині",
+  "middle": "посередині",
+  "in front": "попереду",
+  "before": "перед",
+  "behind": "позаду",
+  "right": "праворуч",
+  "left": "ліворуч",
+  // Animals
+  "cat": "кіт",
+  "dog": "пес",
+  "fish": "риба",
+  // Food
+  "rice": "рис",
+  "meal": "їжа",
+  "meat": "м'ясо",
+  "vegetable": "овоч",
+  "fruit": "фрукт",
+  "bread": "хліб",
+  "egg": "яйце",
+  "coffee": "кава",
+  "tea": "чай",
+  "juice": "сік",
+  "beer": "пиво",
+  "alcohol": "алкоголь",
+  "sake": "саке",
+  "sushi": "суші",
+  "ramen": "рамен",
+  "sashimi": "сашімі",
+  // Verbs
+  "to eat": "їсти",
+  "to drink": "пити",
+  "to see": "бачити",
+  "to watch": "дивитися",
+  "to see, to watch": "дивитися",
+  "to read": "читати",
+  "to write": "писати",
+  "to listen": "слухати",
+  "to ask": "питати",
+  "to listen, to ask": "слухати/питати",
+  "to wake up": "прокидатися",
+  "to sleep": "спати",
+  "to study": "вчитися",
+  "to go": "йти",
+  "to come": "приходити",
+  "to buy": "купувати",
+  "to sell": "продавати",
+  "to make": "робити",
+  "to use": "використовувати",
+  "to stand": "стояти",
+  "to sit": "сидіти",
+  "to walk": "ходити",
+  "to run": "бігти",
+  "to swim": "плавати",
+  "to leave": "залишати",
+  "to exit": "виходити",
+  "to leave, to exit": "виходити",
+  "to enter": "входити",
+  "to return home": "повертатися додому",
+  "to remember": "пам'ятати",
+  "to memorize": "запам'ятовувати",
+  "to remember, to memorize": "запам'ятовувати",
+  "to forget": "забувати",
+  "to teach": "навчати",
+  "to learn (from someone)": "вчитися (у когось)",
+  "to wait": "чекати",
+  "to speak": "розмовляти",
+  "to take (photo)": "робити (фото)",
+  "to get married": "одружуватися",
+  "to know": "знати",
+  "to live (residence)": "жити (мешкати)",
+  "to work": "працювати",
+  "to think": "думати",
+  "to think, to consider": "обдумувати",
+  "to say": "говорити",
+  "to think (one's own thought)": "думати",
+  "to decide": "вирішувати",
+  "to investigate": "досліджувати",
+  "to look up": "шукати (інформацію)",
+  "to investigate, to look up": "досліджувати",
+  "to compare": "порівнювати",
+  "to start (something)": "починати (щось)",
+  "(something) starts": "(щось) починається",
+  "to end": "закінчувати(ся)",
+  "to continue (something)": "продовжувати (щось)",
+  "(something) continues": "(щось) триває",
+  "to feel": "відчувати",
+  "to believe": "вірити",
+  "to answer": "відповідати",
+  "to ask (a favor)": "просити (про послугу)",
+  "to hurry": "поспішати",
+  "to send": "відправляти",
+  "to receive": "отримувати",
+  "to take (a test)": "складати (тест)",
+  "to receive, to take (a test)": "отримати/скласти",
+  "to lend": "позичати (давати)",
+  "to borrow": "позичати (брати)",
+  "to be audible": "бути чутним",
+  "to open (something)": "відкривати (щось)",
+  "to open (intransitive)": "відкриватися",
+  "to close (something)": "закривати (щось)",
+  "to close (intransitive)": "закриватися",
+  "can speak": "може говорити",
+  "to help": "допомагати",
+  "to scold": "лаяти",
+  "to be / come / go (honorific)": "бути / йти / приходити (ввічл.)",
+  "to eat / drink (honorific)": "їсти / пити (ввічл.)",
+  "to go / come (humble)": "йти / приходити (скромн.)",
+  "to receive / eat / drink (humble)": "отримувати/їсти (скромно)",
+  // Adjectives — i
+  "big": "великий",
+  "small": "малий",
+  "new": "новий",
+  "old": "старий",
+  "expensive": "дорогий",
+  "tall": "високий",
+  "expensive, tall": "дорогий/високий",
+  "cheap": "дешевий",
+  "interesting": "цікавий",
+  "good": "добрий",
+  "hot": "гарячий",
+  "hot (weather)": "спекотний",
+  "cold (weather)": "холодний",
+  "warm": "теплий",
+  "cool": "прохолодний",
+  "difficult": "складний",
+  "easy": "легкий",
+  "fast": "швидкий",
+  "slow": "повільний",
+  "slow, late": "повільний/пізній",
+  "busy": "зайнятий",
+  "fun": "весело",
+  "happy": "щасливий",
+  "sad": "сумний",
+  "painful": "болючий",
+  "correct": "правильний",
+  "young": "молодий",
+  "strong": "сильний",
+  "weak": "слабкий",
+  "deep": "глибокий",
+  "shallow": "мілкий",
+  "wide": "широкий",
+  "spacious": "просторий",
+  "wide, spacious": "просторий",
+  "narrow": "вузький",
+  "cramped": "тісний",
+  "narrow, cramped": "тісний",
+  // Adjectives — na
+  "quiet": "тихий",
+  "pretty": "гарний",
+  "clean": "чистий",
+  "pretty, clean": "гарний",
+  "liked": "подобається",
+  "disliked": "не подобається",
+  "healthy": "здоровий",
+  "energetic": "бадьорий",
+  "healthy, energetic": "здоровий/бадьорий",
+  "convenient": "зручний",
+  "kind": "добрий",
+  "famous": "відомий",
+  "important": "важливий",
+  "necessary": "необхідний",
+  "possible": "можливий",
+  "inconvenient": "незручний",
+  "simple": "простий",
+  "complex": "складний",
+  "safe": "безпечний",
+  "dangerous": "небезпечний",
+  // Numbers/counters
+  "one": "один",
+  "two": "два",
+  "three": "три",
+  "four": "чотири",
+  "five": "п'ять",
+  "six": "шість",
+  "seven": "сім",
+  "eight": "вісім",
+  "nine": "дев'ять",
+  "ten": "десять",
+  "hundred": "сто",
+  "thousand": "тисяча",
+  "ten thousand": "десять тисяч",
+  "one (thing)": "одна штука",
+  "two (things)": "дві штуки",
+  "three (things)": "три штуки",
+  // Misc
+  "movie": "фільм",
+  "homework": "домашнє завдання",
+  "travel": "подорож",
+  "medicine": "ліки",
+  "essay": "твір",
+  "exercise": "вправа",
+  "experience": "досвід",
+  "meaning": "значення",
+  "reason": "причина",
+  "problem": "проблема",
+  "question": "питання",
+  "problem, question": "проблема/питання",
+  "answer": "відповідь",
+  "feeling": "почуття",
+  "mood": "настрій",
+  "feeling, mood": "настрій",
+  "plan": "план",
+  "schedule": "розклад",
+  "plan, schedule": "план/розклад",
+  "place": "місце",
+  "TV program": "телепрограма",
+  "economy": "економіка",
+  "politics": "політика",
+  "culture": "культура",
+  "history": "історія",
+};
+
+// Kanji meanings (English → Ukrainian)
+const KANJI_MAP: Record<string, string> = {
+  "one": "один",
+  "two": "два",
+  "three": "три",
+  "four": "чотири",
+  "five": "п'ять",
+  "six": "шість",
+  "seven": "сім",
+  "eight": "вісім",
+  "nine": "дев'ять",
+  "ten": "десять",
+  "sun": "сонце",
+  "day": "день",
+  "moon": "місяць (небо)",
+  "month": "місяць",
+  "fire": "вогонь",
+  "water": "вода",
+  "tree": "дерево",
+  "wood": "дерево (матеріал)",
+  "mountain": "гора",
+  "river": "річка",
+  "person": "людина",
+  "mouth": "рот",
+  "eye": "око",
+  "hand": "рука",
+  "I": "я",
+  "private": "приватне",
+  "I, private": "я / приватне",
+  "now": "зараз",
+  "book": "книга",
+  "origin": "походження",
+  "book, origin": "книга / походження",
+  "year": "рік",
+  "study": "вчитися",
+  "life": "життя",
+  "birth": "народження",
+  "life, birth": "життя / народження",
+  "before": "перед",
+  "ahead": "вперед",
+  "before, ahead": "перед / вперед",
+  "go": "йти",
+  "see": "бачити",
+};
+
+// Radical meanings
+const RADICAL_MAP: Record<string, string> = {
+  "person": "людина",
+  "mouth": "рот",
+  "sun/day": "сонце / день",
+  "moon/month": "місяць / місяць",
+  "water": "вода",
+  "tree": "дерево",
+  "fire": "вогонь",
+  "mountain": "гора",
+  "eye": "око",
+  "hand": "рука",
+  "heart": "серце",
+  "speech": "мовлення",
+  "metal/gold": "метал / золото",
+  "vehicle": "транспорт",
+  "gate": "ворота",
+};
+
+// Part-of-speech translations
+const POS_MAP: Record<string, string> = {
+  "noun": "іменник",
+  "pronoun": "займенник",
+  "godan verb": "годан-дієслово",
+  "ichidan verb": "ічідан-дієслово",
+  "irregular verb": "неправильне дієслово",
+  "ichidan verb (transitive)": "ічідан-дієслово (перехідне)",
+  "ichidan verb (potential)": "ічідан-дієслово (потенц.)",
+  "godan verb (honorific)": "годан-дієслово (ввічливе)",
+  "godan verb (humble)": "годан-дієслово (скромне)",
+  "i-adjective": "і-прикметник",
+  "na-adjective": "на-прикметник",
+  "expression": "вираз",
+  "interjection": "вигук",
+  "counter": "лічильник",
+  "numeric": "числове",
+};
+
+// Section titles + summaries (full strings)
+const SECTION_MAP: Record<string, { title: string; summary: string }> = {
+  "n5-basics": {
+    title: "Основи: зв'язка і вказівні слова",
+    summary: "L1–L2: представлення себе, ідентифікація речей, питання, з'єднання іменників.",
+  },
+  "n5-verbs-time": {
+    title: "Дієслова, частки, час",
+    summary: "L3–L4: ввічлива форма ます, частки дій, існування, минулий час.",
+  },
+  "n5-adjectives": {
+    title: "Прикметники та вподобання",
+    summary: "L5: і-прикметники, на-прикметники, 好き/嫌い з が.",
+  },
+  "n5-te-form": {
+    title: "Те-форма та поточні дії",
+    summary: "L6–L7: утворення та використання て-форми (прохання, дозвіл, заборона, ている, послідовність).",
+  },
+  "n5-plain-forms": {
+    title: "Прості форми та переказ",
+    summary: "L8–L9: короткі форми, と思う, 〜たり, проста минула форма.",
+  },
+  "n5-comparisons-wishes": {
+    title: "Порівняння, умови, бажання",
+    summary: "L10–L11: より/のほうが, 〜たら, 〜たい, 〜たことがある.",
+  },
+  "n5-polite-explanations": {
+    title: "Ввічливі пояснення та обов'язки",
+    summary: "L12: 〜んです, 〜すぎる, 〜ほうがいい, 〜なくちゃいけません.",
+  },
+  "n4-potential": {
+    title: "Потенціал та перелік причин",
+    summary: "L13: потенційна форма, 〜し.",
+  },
+  "n4-wishes-intentions": {
+    title: "Бажання, причини, наміри",
+    summary: "L14–L15: 〜てほしい, 〜ので, волітив, 〜ようと思う, つもり.",
+  },
+  "n4-giving-receiving": {
+    title: "Давати, отримувати та умови",
+    summary: "L16: あげる/くれる/もらう, 〜ば.",
+  },
+  "n4-reports": {
+    title: "Переказ та спостереження",
+    summary: "L17–L18: 〜そう, 〜たら/って, перехідні/неперехідні, 〜てしまう.",
+  },
+  "n4-honorifics": {
+    title: "Гонорифіки",
+    summary: "L19–L20: сонкейго та кенджьоо (ввічлива і скромна мова).",
+  },
+  "n4-passive-causative": {
+    title: "Пасив, каузатив та звички",
+    summary: "L21–L23: пасив, каузатив, каузативно-пасивна, конструкції з 〜ように.",
+  },
+};
+
+// Grammar point titles (slug → uk title)
+const GRAMMAR_TITLES: Record<string, string> = {
+  "genki-l1-1-wa-desu": "XはYです — основна зв'язка",
+  "genki-l1-2-question-ka": "Частка-питання か",
+  "genki-l1-3-no-modifier": "Іменник + の + іменник — приналежність/означення",
+  "genki-l2-1-kosoado": "これ・それ・あれ — цей/той/он той",
+  "genki-l2-2-mo": "Частка も — також / теж",
+  "genki-l3-1-masu-form": "Дієвідміна: форма ます (ввічливий теперішній/майбутній)",
+  "genki-l3-2-particles": "Частки を, で, に, へ",
+  "genki-l3-3-masenka": "〜ませんか — запрошення",
+  "genki-l4-1-iru-aru": "います / あります — існування",
+  "genki-l4-2-past-desu": "Минулий час іменників/прикметників (です → でした)",
+  "genki-l5-1-adjectives": "い-прикметники та な-прикметники",
+  "genki-l5-2-suki-kirai": "好き / 嫌い + が",
+  "genki-l6-1-te-form": "Те-форма — утворення",
+  "genki-l6-2-te-uses": "〜てください / 〜てもいいです / 〜てはいけません",
+  "genki-l7-1-teiru": "〜ている — поточне та стан",
+  "genki-l7-2-te-sequence": "З'єднання дій через て",
+  "genki-l8-1-short-forms-present": "Короткі форми (простий теперішній)",
+  "genki-l8-2-to-omou": "〜と思う / 〜と言っていた",
+  "genki-l9-1-short-past": "Короткі форми минулого часу",
+  "genki-l9-2-tari": "〜たり〜たりする — неповний перелік дій",
+  "genki-l10-1-comparisons": "Порівняння より / ほうが",
+  "genki-l10-2-tara": "〜たら — умова",
+  "genki-l11-1-tai": "〜たい — хочу зробити",
+  "genki-l11-2-ta-koto-ga-aru": "〜たことがある — мав досвід",
+  "genki-l12-1-n-desu": "〜んです — пояснення",
+  "genki-l12-2-suggestions-obligations": "〜すぎる / 〜ほうがいい / 〜なくちゃいけません",
+  "genki-l13-1-potential": "Потенційна форма — можу зробити",
+  "genki-l13-2-shi": "〜し — перелік причин",
+  "genki-l14-1-te-hoshii": "〜てほしい — хочу, щоб хтось зробив",
+  "genki-l14-2-node": "〜ので — причина (м'якше за から)",
+  "genki-l15-1-volitional": "Волітив — давай / зроблю",
+  "genki-l15-2-intentions": "〜ようと思う / つもり — наміри",
+  "genki-l16-1-giving-receiving": "〜てあげる / 〜てくれる / 〜てもらう",
+  "genki-l16-2-ba": "〜ば — умова",
+  "genki-l17-1-sou": "〜そう — переказ та вигляд",
+  "genki-l17-2-tara-tte": "〜たら (повтор) та って (розм. цитування)",
+  "genki-l18-1-transitive-intransitive": "Перехідні та неперехідні пари дієслів",
+  "genki-l18-2-te-shimau": "〜てしまう — завершення / жаль",
+  "genki-l19-1-sonkeigo": "Шанобливі вирази (尊敬語)",
+  "genki-l20-1-kenjougo": "Скромні вирази (謙譲語)",
+  "genki-l21-1-passive": "Пасивна форма (受身)",
+  "genki-l22-1-causative": "Каузативна форма (使役)",
+  "genki-l23-1-causative-passive": "Каузативно-пасивна — змусили зробити",
+  "genki-l23-2-you-ni": "〜ように / 〜ようにする / 〜ようになる",
+};
+
+// Listening exercises by title — translate english + questions
+const LISTENING_TITLE_TR: Record<string, string> = {
+  "Self-introduction": "Самопредставлення",
+  "Ordering at a restaurant": "Замовлення в ресторані",
+  "Telephone call": "Телефонний дзвінок",
+  "Buying a ticket": "Купівля квитка",
+  "Asking directions": "Питати дорогу",
+  "Daily routine": "Розпорядок дня",
+  "Family": "Родина",
+  "Shopping": "Шопінг",
+  "Weekend plans": "Плани на вихідні",
+  "Weather": "Погода",
+  "Train announcement": "Оголошення на потязі",
+  "Restaurant reservation": "Бронювання столика",
+  "At the doctor's office": "У лікаря",
+  "Travel plans": "Плани на подорож",
+  "Job interview": "Співбесіда",
+  "Lost item at the station": "Загублена річ на станції",
+  "Apartment hunting": "Пошук квартири",
+  "Job change interview": "Співбесіда зі зміною роботи",
+};
+
+const READING_TITLE_TR: Record<string, string> = {
+  "My morning": "Мій ранок",
+  "My family": "Моя родина",
+  "About hobbies": "Про хобі",
+  "A short letter": "Коротенький лист",
+  "My room": "Моя кімната",
+  "At a coffee shop": "У кав'ярні",
+  "Weekend": "Вихідні",
+  "Email about plans": "Лист про плани",
+  "Recipe: Miso soup": "Рецепт: місо-суп",
+  "Job posting": "Оголошення про роботу",
+  "Travel diary": "Щоденник подорожі",
+  "Notice at school": "Оголошення у школі",
+  "Environment article": "Стаття про довкілля",
+  "Book review": "Огляд книги",
+};
+
+// English translation of Japanese transcripts/texts — translate to Ukrainian
+const ENGLISH_TR: Record<string, string> = {
+  "Nice to meet you. I'm Tanaka. I'm a student. Please treat me well.":
+    "Радий познайомитися. Я Танака. Я студент. Прошу любити та жалувати.",
+  "Excuse me. Water please. And ramen please.":
+    "Перепрошую. Будь ласка, води. І ще рамен, будь ласка.",
+  "Hello, this is Suzuki. Is Yamada there? Excuse me, could you say that again?":
+    "Алло, це Судзукі. Чи є там Ямада? Перепрошую, повторіть, будь ласка.",
+  "One ticket to Tokyo, please. What time is the train? It's the 9:30 train.":
+    "Один квиток до Токіо, будь ласка. О котрій потяг? Потяг о 9:30.",
+  "Excuse me. Where is the post office? It's next to that bank. Thank you very much.":
+    "Перепрошую. Де пошта? Вона поряд із тим банком. Дуже дякую.",
+  "I wake up at 7 every morning. I eat breakfast at 8. I go to school at 9.":
+    "Я прокидаюся щодня о 7. О 8 я снідаю. О 9 йду до школи.",
+  "My family has four people. My father, mother, older brother, and me. My older brother is a university student.":
+    "У моїй родині четверо: тато, мама, старший брат і я. Старший брат — студент університету.",
+  "How much is this apple? It's 100 yen each. Then, give me three please.":
+    "Скільки коштує це яблуко? 100 єн за штуку. Тоді дайте, будь ласка, три.",
+  "What will you do on the weekend? On Saturday I'll watch a movie with a friend. On Sunday I'll rest at home.":
+    "Що робитимеш на вихідних? У суботу подивлюся фільм з другом. У неділю відпочиватиму вдома.",
+  "Today the weather is nice, isn't it. Yes, it's warm. I heard tomorrow will rain.":
+    "Сьогодні гарна погода, правда? Так, тепло. Кажуть, завтра буде дощ.",
+  "Attention all passengers. Due to an accident, the train is delayed by 30 minutes. We apologize for the inconvenience.":
+    "Шановні пасажири! Через аварію потяг затримується на 30 хвилин. Перепрошуємо за незручності.",
+  "Hello, this is Restaurant Sakura. I'd like to make a reservation for four people at 7 tomorrow. Yes, your name please. It's Tanaka.":
+    "Алло, ресторан «Сакура». Хотів би забронювати столик на чотирьох на завтра о 7. Так, ваше прізвище? Танака.",
+  "What's wrong? My head has been hurting for three days. Do you have a fever too? Yes, a little. It's a cold. I'll prescribe medicine.":
+    "Що сталося? Уже три дні болить голова. Температура є? Так, невелика. Це застуда. Випишу ліки.",
+  "I'm thinking of going to Kyoto for summer vacation. How many days will you go? About a week. I want to see lots of temples.":
+    "На літніх канікулах хочу поїхати до Кіото. На скільки днів? На тиждень. Хочу подивитися багато храмів.",
+  "Why did you apply to our company? Because I like your products. What did you do at your previous company? I worked in sales.":
+    "Чому ви подалися до нас? Бо мені подобається ваша продукція. Чим займалися на попередній роботі? Працював у продажах.",
+  "Excuse me. I left my bag on the train. What color is the bag? It's a black bag. There's a book and a wallet inside.":
+    "Перепрошую. Я залишив сумку в потязі. Якого кольору сумка? Чорна. Усередині книжка і гаманець.",
+  "I'm looking for an apartment close to the station. What's the rent? Up to 100,000 yen per month. Can I have pets? Yes, a small dog is fine.":
+    "Шукаю квартиру поряд зі станцією. Скільки оренда? До 100 000 єн на місяць. Можна тварин? Так, з невеликим собакою можна.",
+  "Why are you considering leaving your current company? Because I want to do more specialized work. What would you like to do if you join us? I want to be involved in new product development.":
+    "Чому ви думаєте піти з поточної компанії? Бо хочу займатися більш спеціалізованою роботою. Що хотіли б робити у нас? Хочу бути залученим до розробки нових продуктів.",
+  "I wake up at 7 every day. Then I drink water. I eat rice. I go to school at 8.":
+    "Я прокидаюся о 7 щодня. Потім п'ю воду. Їм рис. О 8 йду до школи.",
+  "My family has five people. Father, mother, older brother, younger sister, and me. Father is a company worker. Mother is a teacher. Older brother is a university student. Younger sister is a middle school student.":
+    "У моїй родині п'ятеро: тато, мама, старший брат, молодша сестра і я. Тато — службовець. Мама — вчителька. Старший брат — студент. Молодша сестра — учениця середньої школи.",
+  "My hobby is reading books. I always go to the library on weekends. I like Japanese novels. I also like movies.":
+    "Моє хобі — читання книг. На вихідних завжди ходжу до бібліотеки. Люблю японські романи. Також люблю фільми.",
+  "Hello Mary. How are you? I'm well. Today I studied Japanese. I'll study tomorrow too. See you. Tanaka.":
+    "Привіт, Мері. Як справи? У мене все добре. Сьогодні я вчила японську. Завтра теж вчитимуся. Бувай. Танака.",
+  "My room is not very big. There is one desk. There is also one chair. There are two windows. There are lots of books.":
+    "Моя кімната не дуже велика. Є один стіл. Є один стілець. Є два вікна. Багато книжок.",
+  "I go to a cafe every day. Because I like coffee. I always eat cake too. I also read books at the cafe.":
+    "Я ходжу до кав'ярні щодня. Бо люблю каву. Завжди їм також тістечко. Ще читаю книги в кав'ярні.",
+  "On Saturday morning I study. In the afternoon I go shopping. On Sunday I play with friends in the park. It's very fun.":
+    "У суботу зранку я вчуся. Удень йду на шопінг. У неділю граю з друзями в парку. Дуже весело.",
+  "Hello Yamada, how are you? Would you like to go see a movie together next Saturday? I heard a new anime movie just started. How about the 3 PM showing? Waiting for your reply. Tanaka.":
+    "Привіт, Ямада, як справи? Не хочеш разом сходити в кіно наступної суботи? Кажуть, вийшло нове аніме. Сеанс о 15:00 пасує? Чекаю відповіді. Танака.",
+  "Ingredients: tofu, wakame, miso, dashi. First, boil water. Next, add dashi. Add tofu and wakame. Finally, add miso and turn off the heat.":
+    "Інгредієнти: тофу, вакаме, місо, даші. Спершу закип'ятити воду. Потім додати даші. Додати тофу й вакаме. Наприкінці додати місо та вимкнути вогонь.",
+  "Hiring convenience store staff. Three days a week, from 6 PM to 10 PM. Must speak Japanese. No experience needed. Hourly wage is 1,100 yen.":
+    "Шукаємо працівників у комбіні. Три дні на тиждень, з 18:00 до 22:00. Потрібна японська. Досвід не обов'язковий. Оплата 1100 єн на годину.",
+  "Today I arrived in Kyoto. It took two and a half hours from Tokyo by Shinkansen. The hotel is a 5-minute walk from the station. Tomorrow I plan to go to Kiyomizu Temple.":
+    "Сьогодні я приїхав до Кіото. Із Токіо на Шинкансені — дві з половиною години. Готель за 5 хвилин ходу від станції. Завтра планую піти до храму Кійомідзу.",
+  "To all students. Next Monday, the library will be closed due to construction. Tuesday through Friday it will be open as usual. Those who want to borrow books, please return them quickly.":
+    "Шановні студенти! Наступного понеділка бібліотека буде зачинена через ремонт. З вівторка по п'ятницю — звичайний графік. Хто бере книги, поверніть швидше.",
+  "Recently, global warming has become a major problem. It is important for each of us to do things like using eco-bags, saving electricity, and sorting trash. Even small things, by continuing them, we can protect the Earth.":
+    "Останнім часом глобальне потепління стало великою проблемою. Кожному з нас важливо користуватися екосумками, економити електрику, сортувати сміття. Навіть малі речі, якщо їх повторювати, допоможуть зберегти Землю.",
+  "This book is a novel about a child's growth. The main character is an elementary school student, and the daily life with family and friends is depicted. The writing is easy to read, and there are many moving scenes. A book I highly recommend.":
+    "Ця книга — роман про дорослішання дитини. Головний герой — учень початкової школи, описано повсякденне життя з родиною та друзями. Текст легко читається, багато зворушливих сцен. Дуже раджу.",
+};
+
+// Listening/reading question translation: q + choices + answer (lookup by exact English text)
+const Q_MAP: Record<string, string> = {
+  // Common question words
+  "What is the speaker's name?": "Як звуть мовця?",
+  "What is the speaker's occupation?": "Хто за професією мовець?",
+  "What does the speaker order to drink?": "Що мовець замовляє пити?",
+  "What food does the speaker order?": "Яку їжу мовець замовляє?",
+  "Who is calling?": "Хто дзвонить?",
+  "Who does the caller want to speak to?": "З ким хоче поговорити той, хто дзвонить?",
+  "What does the caller ask the listener to do?": "Що мовець просить зробити співрозмовника?",
+  "Where is the speaker going?": "Куди їде мовець?",
+  "How many tickets are bought?": "Скільки куплено квитків?",
+  "What time does the train depart?": "О котрій відправляється потяг?",
+  "What is the speaker looking for?": "Що шукає мовець?",
+  "Where is it located?": "Де воно знаходиться?",
+  "What time does the speaker wake up?": "О котрій прокидається мовець?",
+  "What time does the speaker eat breakfast?": "О котрій мовець снідає?",
+  "What time does the speaker go to school?": "О котрій мовець йде до школи?",
+  "How many people are in the family?": "Скільки людей у родині?",
+  "What is the speaker's older brother?": "Хто за статусом старший брат?",
+  "What is the speaker buying?": "Що купує мовець?",
+  "How much is one?": "Скільки коштує один?",
+  "How many does the speaker buy?": "Скільки штук бере мовець?",
+  "What is the speaker doing on Saturday?": "Що мовець робить у суботу?",
+  "Where is the speaker on Sunday?": "Де мовець у неділю?",
+  "How is the weather today?": "Яка погода сьогодні?",
+  "How will tomorrow be?": "Якою буде завтра?",
+  "Why is the train delayed?": "Чому потяг затримується?",
+  "How long is the delay?": "Наскільки затримка?",
+  "How many people is the reservation for?": "На скількох людей бронь?",
+  "What time is the reservation?": "О котрій бронь?",
+  "Whose name is the reservation under?": "На чиє ім'я бронь?",
+  "Since when has the patient had a headache?": "Відколи у пацієнта болить голова?",
+  "Does the patient have a fever?": "Чи є у пацієнта температура?",
+  "What does the doctor diagnose?": "Який діагноз ставить лікар?",
+  "Where is the speaker going?": "Куди їде мовець?",
+  "When is the trip?": "Коли подорож?",
+  "How long is the trip?": "Скільки триватиме подорож?",
+  "What does the speaker want to see?": "Що мовець хоче побачити?",
+  "Why did the applicant apply?": "Чому кандидат подався?",
+  "What was their previous job?": "Чим займався раніше?",
+  "Where was the bag lost?": "Де загубилася сумка?",
+  "What color is the bag?": "Якого кольору сумка?",
+  "What's inside?": "Що всередині?",
+  "What is the most important condition?": "Яка найважливіша умова?",
+  "What is the maximum rent?": "Яка максимальна оренда?",
+  "What kind of pet is allowed?": "Яких тварин дозволено?",
+  "Why is the applicant leaving their job?": "Чому кандидат йде з роботи?",
+  "What do they want to do in the new role?": "Чим хоче займатися на новій ролі?",
+  "What time does the writer wake up?": "О котрій прокидається автор?",
+  "What does the writer drink in the morning?": "Що автор п'є зранку?",
+  "What time does the writer go to school?": "О котрій автор йде до школи?",
+  "What does the father do?": "Чим займається тато?",
+  "What is the older brother?": "Хто за статусом старший брат?",
+  "What is the writer's hobby?": "Яке хобі в автора?",
+  "Where does the writer go on weekends?": "Куди ходить автор на вихідних?",
+  "What kind of novels does the writer like?": "Які романи любить автор?",
+  "Who is the letter to?": "Кому адресовано лист?",
+  "What did the writer do today?": "Що автор робив сьогодні?",
+  "Who wrote the letter?": "Хто написав лист?",
+  "How big is the room?": "Якого розміру кімната?",
+  "How many windows are there?": "Скільки вікон?",
+  "What is there a lot of?": "Чого багато?",
+  "How often does the writer go to the cafe?": "Як часто автор ходить до кав'ярні?",
+  "Why does the writer go?": "Чому туди ходить?",
+  "What else does the writer do there?": "Що ще там робить?",
+  "What does the writer do on Saturday morning?": "Що автор робить у суботу зранку?",
+  "What does the writer do on Sunday?": "Що автор робить у неділю?",
+  "How does the writer feel about the weekend?": "Як автор почувається на вихідних?",
+  "What is the writer suggesting?": "Що пропонує автор?",
+  "When?": "Коли?",
+  "What time?": "О котрій?",
+  "What kind of movie?": "Який жанр фільму?",
+  "What is the first step?": "Який перший крок?",
+  "What is the last step?": "Який останній крок?",
+  "Which ingredient is NOT mentioned?": "Який інгредієнт НЕ згадується?",
+  "How many days a week?": "Скільки днів на тиждень?",
+  "Is experience required?": "Чи потрібен досвід?",
+  "What is the hourly wage?": "Скільки оплата за годину?",
+  "Where did the writer go?": "Куди їхав автор?",
+  "How did they travel?": "Як подорожував?",
+  "How long is the walk from the station to the hotel?": "Скільки йти від станції до готелю?",
+  "Where will they go tomorrow?": "Куди піде завтра?",
+  "When is the library closed?": "Коли бібліотека зачинена?",
+  "Why is it closed?": "Чому зачинено?",
+  "What should students do?": "Що мають зробити студенти?",
+  "What is the main topic?": "Яка основна тема?",
+  "Which is NOT mentioned as something to do?": "Що НЕ згадується як те, що варто робити?",
+  "What is emphasized?": "На що зроблено наголос?",
+  "What kind of book is it?": "Яка це книга?",
+  "Who is the main character?": "Хто головний герой?",
+  "How does the reviewer feel about it?": "Як рецензент ставиться до неї?",
+  // Choices (answer translations — often same value works as answer)
+  "Tanaka": "Танака",
+  "Suzuki": "Судзукі",
+  "Sato": "Сато",
+  "Yamada": "Ямада",
+  "Teacher": "Вчитель",
+  "Student": "Студент",
+  "Doctor": "Лікар",
+  "Engineer": "Інженер",
+  "Tea": "Чай",
+  "Water": "Вода",
+  "Beer": "Пиво",
+  "Coffee": "Кава",
+  "Sushi": "Суші",
+  "Ramen": "Рамен",
+  "Udon": "Удон",
+  "Curry": "Каррі",
+  "Wait": "Чекати",
+  "Repeat": "Повторити",
+  "Come back later": "Прийти пізніше",
+  "Hang up": "Покласти трубку",
+  "Osaka": "Осака",
+  "Tokyo": "Токіо",
+  "Kyoto": "Кіото",
+  "Nagoya": "Нагоя",
+  "One": "Один",
+  "Two": "Два",
+  "Three": "Три",
+  "Four": "Чотири",
+  "Five": "П'ять",
+  "Six": "Шість",
+  "Seven": "Сім",
+  "Bank": "Банк",
+  "Post office": "Пошта",
+  "Station": "Станція",
+  "Library": "Бібліотека",
+  "Next to the bank": "Поряд із банком",
+  "Inside the station": "На станції",
+  "In front of the school": "Перед школою",
+  "Behind the library": "За бібліотекою",
+  "A teacher": "Вчитель",
+  "A doctor": "Лікар",
+  "A university student": "Студент університету",
+  "A high school student": "Старшокласник",
+  "Banana": "Банан",
+  "Apple": "Яблуко",
+  "Orange": "Апельсин",
+  "Strawberry": "Полуниця",
+  "50 yen": "50 єн",
+  "100 yen": "100 єн",
+  "150 yen": "150 єн",
+  "200 yen": "200 єн",
+  "1,000 yen": "1000 єн",
+  "1,100 yen": "1100 єн",
+  "1,200 yen": "1200 єн",
+  "1,500 yen": "1500 єн",
+  "Studying": "Навчання",
+  "Watching a movie": "Перегляд фільму",
+  "Working": "Робота",
+  "Sleeping": "Сон",
+  "At a cafe": "У кав'ярні",
+  "At school": "У школі",
+  "At home": "Удома",
+  "At a park": "У парку",
+  "Cold": "Холодно",
+  "Rainy": "Дощить",
+  "Warm": "Тепло",
+  "Snowy": "Сніжно",
+  "Sunny": "Сонячно",
+  "Windy": "Вітряно",
+  "Bad weather": "Погана погода",
+  "Accident": "Аварія",
+  "Construction": "Ремонт",
+  "Strike": "Страйк",
+  "10 minutes": "10 хвилин",
+  "20 minutes": "20 хвилин",
+  "30 minutes": "30 хвилин",
+  "1 hour": "1 година",
+  "6:00": "6:00",
+  "7:00": "7:00",
+  "8:00": "8:00",
+  "9:00": "9:00",
+  "1 day ago": "Один день тому",
+  "2 days ago": "Два дні тому",
+  "3 days ago": "Три дні тому",
+  "1 week ago": "Тиждень тому",
+  "Yes, a lot": "Так, дуже",
+  "Yes, a little": "Так, трошки",
+  "No": "Ні",
+  "Doesn't know": "Не знає",
+  "Flu": "Грип",
+  "Allergy": "Алергія",
+  "Headache only": "Лише головний біль",
+  "Hokkaido": "Хоккайдо",
+  "Spring break": "Весняні канікули",
+  "Summer vacation": "Літні канікули",
+  "Winter break": "Зимові канікули",
+  "Golden Week": "Золотий тиждень",
+  "3 days": "3 дні",
+  "5 days": "5 днів",
+  "1 week": "1 тиждень",
+  "2 weeks": "2 тижні",
+  "Mountains": "Гори",
+  "Beaches": "Пляжі",
+  "Temples": "Храми",
+  "Museums": "Музеї",
+  "Good salary": "Гарна зарплата",
+  "Likes the products": "Подобається продукція",
+  "Close to home": "Близько до дому",
+  "Famous company": "Відома компанія",
+  "Engineering": "Інженерія",
+  "Sales": "Продажі",
+  "Marketing": "Маркетинг",
+  "Accounting": "Бухгалтерія",
+  "Bus": "Автобус",
+  "Train": "Потяг",
+  "Taxi": "Таксі",
+  "Bench": "Лава",
+  "Red": "Червоний",
+  "Blue": "Синій",
+  "Black": "Чорний",
+  "White": "Білий",
+  "Phone and keys": "Телефон і ключі",
+  "Book and wallet": "Книга і гаманець",
+  "Lunch and umbrella": "Обід і парасоля",
+  "Laptop and notebook": "Ноутбук і зошит",
+  "Close to station": "Близько до станції",
+  "Cheap": "Дешеве",
+  "Big rooms": "Великі кімнати",
+  "New building": "Новий будинок",
+  "50,000 yen": "50 000 єн",
+  "100,000 yen": "100 000 єн",
+  "150,000 yen": "150 000 єн",
+  "200,000 yen": "200 000 єн",
+  "Large dog": "Великий пес",
+  "Small dog": "Маленький пес",
+  "Cat only": "Тільки кіт",
+  "No pets": "Без тварин",
+  "Salary": "Зарплата",
+  "More specialized work": "Більш спеціалізована робота",
+  "Bad boss": "Поганий керівник",
+  "Long hours": "Довгі години",
+  "Product development": "Розробка продукту",
+  "HR": "HR",
+  "Tanaka": "Танака",
+  "6": "6",
+  "7": "7",
+  "8": "8",
+  "9": "9",
+  "10": "10",
+  "Worked": "Працював",
+  "Studied Japanese": "Вчив японську",
+  "Watched TV": "Дивився ТБ",
+  "Went shopping": "Ходив у магазин",
+  "Mary": "Мері",
+  "Very big": "Дуже велика",
+  "Big": "Велика",
+  "Not very big": "Не дуже велика",
+  "Tiny": "Малесенька",
+  "Chairs": "Стільці",
+  "Desks": "Столи",
+  "Windows": "Вікна",
+  "Books": "Книги",
+  "Sometimes": "Іноді",
+  "Every week": "Щотижня",
+  "Every day": "Щодня",
+  "Once a month": "Раз на місяць",
+  "Likes coffee": "Любить каву",
+  "Likes cake": "Любить тістечка",
+  "Meets friends": "Зустрічається з друзями",
+  "Studies": "Вчиться",
+  "Watches TV": "Дивиться ТБ",
+  "Reads books": "Читає книги",
+  "Plays games": "Грає в ігри",
+  "Sleeps": "Спить",
+  "Sleep": "Сон",
+  "Study": "Навчатися",
+  "Shop": "Магазин",
+  "Play": "Грати",
+  "Work": "Робота",
+  "Play in the park": "Гра в парку",
+  "Tired": "Втомлений",
+  "Bored": "Нудно",
+  "Fun": "Весело",
+  "Sad": "Сумно",
+  "Dinner": "Вечеря",
+  "Movie": "Фільм",
+  "Shopping": "Шопінг",
+  "Walk": "Прогулянка",
+  "This Saturday": "Цієї суботи",
+  "Next Saturday": "Наступної суботи",
+  "Next Sunday": "Наступної неділі",
+  "Tonight": "Сьогодні ввечері",
+  "1 PM": "13:00",
+  "2 PM": "14:00",
+  "3 PM": "15:00",
+  "4 PM": "16:00",
+  "Action": "Бойовик",
+  "Romance": "Романтика",
+  "Anime": "Аніме",
+  "Horror": "Хоррор",
+  "Add miso": "Додати місо",
+  "Boil water": "Закип'ятити воду",
+  "Add tofu": "Додати тофу",
+  "Add dashi": "Додати даші",
+  "Cool the soup": "Охолодити суп",
+  "Tofu": "Тофу",
+  "Wakame": "Вакаме",
+  "Salt": "Сіль",
+  "Miso": "Місо",
+  "6 PM to 10 PM": "18:00 — 22:00",
+  "10 AM to 6 PM": "10:00 — 18:00",
+  "Morning shift": "Ранкова зміна",
+  "Night shift": "Нічна зміна",
+  "Yes, 1 year": "Так, 1 рік",
+  "Yes, 3 years": "Так, 3 роки",
+  "Yes, in retail": "Так, у роздрібі",
+  "Nara": "Нара",
+  "Plane": "Літак",
+  "Car": "Машина",
+  "Shinkansen": "Шинкансен",
+  "5 minutes": "5 хвилин",
+  "15 minutes": "15 хвилин",
+  "Kinkaku-ji": "Кінкаку-дзі",
+  "Kiyomizu Temple": "Храм Кійомідзу",
+  "Fushimi Inari": "Фушімі Інарі",
+  "Arashiyama": "Арашіяма",
+  "Monday": "Понеділок",
+  "Tuesday": "Вівторок",
+  "Wednesday": "Середа",
+  "Friday": "П'ятниця",
+  "Holiday": "Свято",
+  "Inventory": "Інвентаризація",
+  "Renovation": "Ремонт",
+  "Wait for the announcement": "Чекати оголошення",
+  "Return books quickly": "Повернути книги швидше",
+  "Bring books home": "Забрати книги додому",
+  "Not borrow books": "Не брати книг",
+  "Pollution": "Забруднення",
+  "Global warming": "Глобальне потепління",
+  "Recycling": "Переробка",
+  "Energy": "Енергія",
+  "Use eco-bags": "Користуватися екосумками",
+  "Save electricity": "Економити електрику",
+  "Sort trash": "Сортувати сміття",
+  "Plant trees": "Садити дерева",
+  "Big changes": "Великі зміни",
+  "Government action": "Дії уряду",
+  "Continuing small things": "Робити малі речі регулярно",
+  "Technology": "Технології",
+  "Mystery": "Детектив",
+  "Novel about growth": "Роман про дорослішання",
+  "History": "Історія",
+  "An elementary school student": "Учень початкової школи",
+  "A parent": "Батько/мати",
+  "A college student": "Студент коледжу",
+  "Disappointed": "Розчарований",
+  "Recommends it": "Рекомендує",
+  "Confused": "Спантеличений",
+  "Bored": "Знуджений",
+};
+
+function tr(s: string, map: Record<string, string>): string {
+  return map[s] ?? s;
+}
+
+function trMeanings(meaningsJson: string, map: Record<string, string>): string {
+  const arr = JSON.parse(meaningsJson) as string[];
+  return JSON.stringify(arr.map((m) => tr(m, map)));
+}
+
+async function main() {
+  console.log("Populating Ukrainian (Uk) fields alongside English…");
+
+  // 1. Vocabulary
+  const vocab = await db.vocabulary.findMany();
+  let v = 0;
+  for (const w of vocab) {
+    const meaningsUk = trMeanings(w.meanings, VOCAB_MAP);
+    const pos = JSON.parse(w.partOfSpeech) as string[];
+    const partOfSpeechUk = JSON.stringify(pos.map((p) => tr(p, POS_MAP)));
+    await db.vocabulary.update({ where: { id: w.id }, data: { meaningsUk, partOfSpeechUk } });
+    v++;
+  }
+  console.log(`  ✓ ${v} vocabulary entries`);
+
+  // 2. Kanji
+  const kanji = await db.kanji.findMany();
+  let k = 0;
+  for (const x of kanji) {
+    const meaningsUk = trMeanings(x.meanings, KANJI_MAP);
+    await db.kanji.update({ where: { id: x.id }, data: { meaningsUk } });
+    k++;
+  }
+  console.log(`  ✓ ${k} kanji entries`);
+
+  // 3. Radicals
+  const radicals = await db.radical.findMany();
+  let r = 0;
+  for (const rad of radicals) {
+    const meaningUk = tr(rad.meaning, RADICAL_MAP);
+    await db.radical.update({ where: { id: rad.id }, data: { meaningUk } });
+    r++;
+  }
+  console.log(`  ✓ ${r} radicals`);
+
+  // 4. Grammar sections
+  const sections = await db.grammarSection.findMany();
+  let s = 0;
+  for (const sec of sections) {
+    const m = SECTION_MAP[sec.slug];
+    if (m) {
+      await db.grammarSection.update({ where: { id: sec.id }, data: { titleUk: m.title, summaryUk: m.summary } });
+      s++;
+    }
+  }
+  console.log(`  ✓ ${s} sections`);
+
+  // 5. Grammar point titles
+  const points = await db.grammarPoint.findMany();
+  let gp = 0;
+  for (const p of points) {
+    const uk = GRAMMAR_TITLES[p.slug];
+    if (uk) {
+      await db.grammarPoint.update({ where: { id: p.id }, data: { titleUk: uk } });
+      gp++;
+    }
+  }
+  console.log(`  ✓ ${gp} grammar points`);
+
+  // 6. Listening exercises
+  const listening = await db.listeningExercise.findMany();
+  let l = 0;
+  for (const le of listening) {
+    const titleUk = LISTENING_TITLE_TR[le.title] ?? null;
+    const englishUk = ENGLISH_TR[le.english] ?? null;
+    const qs = JSON.parse(le.questions) as { q: string; choices: string[]; answer: string }[];
+    const questionsUk = JSON.stringify(qs.map((q) => ({
+      q: tr(q.q, Q_MAP),
+      choices: q.choices.map((c) => tr(c, Q_MAP)),
+      answer: tr(q.answer, Q_MAP),
+    })));
+    await db.listeningExercise.update({ where: { id: le.id }, data: { titleUk, englishUk, questionsUk } });
+    l++;
+  }
+  console.log(`  ✓ ${l} listening exercises`);
+
+  // 7. Reading exercises
+  const reading = await db.readingExercise.findMany();
+  let rd = 0;
+  for (const re of reading) {
+    const titleUk = READING_TITLE_TR[re.title] ?? null;
+    const englishUk = ENGLISH_TR[re.english] ?? null;
+    const qs = JSON.parse(re.questions) as { q: string; choices: string[]; answer: string }[];
+    const questionsUk = JSON.stringify(qs.map((q) => ({
+      q: tr(q.q, Q_MAP),
+      choices: q.choices.map((c) => tr(c, Q_MAP)),
+      answer: tr(q.answer, Q_MAP),
+    })));
+    await db.readingExercise.update({ where: { id: re.id }, data: { titleUk, englishUk, questionsUk } });
+    rd++;
+  }
+  console.log(`  ✓ ${rd} reading exercises`);
+
+  console.log("Done. Both languages now coexist in the DB; UI picks per locale.");
+}
+
+main()
+  .catch((e) => { console.error(e); process.exit(1); })
+  .finally(async () => { await db.$disconnect(); });

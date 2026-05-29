@@ -65,6 +65,7 @@ async function loadPayloads(cards: { itemType: string; itemId: number }[]) {
         word: v.word,
         reading: v.reading,
         meanings: JSON.parse(v.meanings),
+        meaningsUk: v.meaningsUk ? JSON.parse(v.meaningsUk) : null,
         partOfSpeech: JSON.parse(v.partOfSpeech),
         jlptLevel: v.jlptLevel,
       });
@@ -75,10 +76,12 @@ async function loadPayloads(cards: { itemType: string; itemId: number }[]) {
       payloads.set(`kanji:${k.id}`, {
         character: k.character,
         meanings: JSON.parse(k.meanings),
+        meaningsUk: k.meaningsUk ? JSON.parse(k.meaningsUk) : null,
         onReadings: JSON.parse(k.onReadings),
         kunReadings: JSON.parse(k.kunReadings),
         jlptLevel: k.jlptLevel,
         mnemonic: k.mnemonic,
+        mnemonicUk: k.mnemonicUk,
       });
   }
   if (byType.grammar?.length) {
@@ -86,6 +89,7 @@ async function loadPayloads(cards: { itemType: string; itemId: number }[]) {
     for (const g of items)
       payloads.set(`grammar:${g.id}`, {
         title: g.title,
+        titleUk: g.titleUk,
         jlptLevel: g.jlptLevel,
         slug: g.slug,
         examples: JSON.parse(g.examples),

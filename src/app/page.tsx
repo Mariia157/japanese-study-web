@@ -7,6 +7,8 @@ import { db } from "@/lib/db";
 import { getStats, xpToNextLevel } from "@/lib/xp";
 import { getReviewQueue } from "@/lib/srs/queue";
 import { getCurrentLevel } from "@/lib/level";
+import { getT, getLocale, type T } from "@/lib/i18n";
+import { pickL, type Locale } from "@/lib/i18n-shared";
 import { Flame, Sparkles, Target, Calendar, ArrowRight, BookOpen, Languages, FileText, Trophy } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -78,20 +80,24 @@ async function contentTotals() {
 
 export default async function Home() {
   const data = await getDashboardData();
+  const t = await getT();
+  const locale = await getLocale();
   const { current, needed, level } = xpToNextLevel(data.stats.xp);
   const goalPct = Math.min(100, Math.round((data.todayReviews / data.stats.dailyGoal) * 100));
+  const streakDays = data.stats.streakDays;
+  const startCount = data.dueCount + Math.min(data.newCount, 10);
 
   return (
     <div className="space-y-6">
       <header className="flex flex-col sm:flex-row sm:items-end gap-3 justify-between">
         <div>
-          <p className="text-sm text-muted">Welcome back</p>
-          <h1 className="text-3xl font-semibold">Today&apos;s study plan</h1>
+          <p className="text-sm text-muted">{t("home.welcome")}</p>
+          <h1 className="text-3xl font-semibold">{t("home.title")}</h1>
         </div>
         <Link href="/review">
           <Button size="lg">
             <Sparkles className="w-4 h-4" />
-            Start review ({data.dueCount + Math.min(data.newCount, 10)})
+            {t("home.start_review", { count: startCount })}
           </Button>
         </Link>
       </header>
@@ -99,36 +105,37 @@ export default async function Home() {
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           icon={<Flame className="w-4 h-4" />}
-          label="Streak"
-          value={`${data.stats.streakDays} day${data.stats.streakDays === 1 ? "" : "s"}`}
-          subtitle={nextMilestoneLabel(data.stats.streakDays)}
-          footer={<Progress value={streakMilestonePct(data.stats.streakDays)} barClassName="bg-white" className="bg-white/25" />}
+          label={t("home.streak")}
+          value={t(streakDays === 1 ? "home.streak_days" : "home.streak_days_pl", { n: streakDays })}
+          subtitle={nextMilestoneLabel(streakDays, t)}
+          footer={<Progress value={streakMilestonePct(streakDays)} barClassName="bg-white" className="bg-white/25" />}
           accent
         />
         <StatCard
           icon={<Sparkles className="w-4 h-4" />}
-          label="XP"
+          label={t("home.xp")}
           value={data.stats.xp.toLocaleString()}
-          subtitle={`Level ${level} — ${current}/${needed} XP`}
+          subtitle={t("home.level_xp_progress", { level, current, needed })}
           footer={<Progress value={(current / needed) * 100} />}
         />
         <StatCard
           icon={<Calendar className="w-4 h-4" />}
-          label="Reviews due"
+          label={t("home.reviews_due")}
           value={data.dueCount.toString()}
-          subtitle={`${data.newCount} new · ${data.learningCount} learning`}
+          subtitle={t("home.reviews_breakdown", { newCount: data.newCount, learningCount: data.learningCount })}
           footer={<Progress value={data.dueCount === 0 ? 0 : 100} />}
         />
         <StatCard
           icon={<Target className="w-4 h-4" />}
-          label="Daily goal"
+          label={t("home.daily_goal")}
           value={`${data.todayReviews}/${data.stats.dailyGoal}`}
-          subtitle={`${Math.max(0, data.stats.dailyGoal - data.todayReviews)} to go`}
+          subtitle={t("home.to_go", { n: Math.max(0, data.stats.dailyGoal - data.todayReviews) })}
           footer={<Progress value={goalPct} />}
         />
       </div>
 
       <LevelProgressSection
+        t={t}
         jlpt={data.jlpt}
         xp={data.stats.xp}
         xpLevel={level}
@@ -141,18 +148,18 @@ export default async function Home() {
         <CardHeader>
           <div className="flex items-start justify-between gap-3">
             <div>
-              <CardTitle>Review queue</CardTitle>
+              <CardTitle>{t("home.review_queue")}</CardTitle>
               <CardDescription>
                 {data.queuePreview.length > 0
-                  ? `${data.dueCount + Math.min(data.newCount, 10)} cards ready · mixed across vocab, kanji and grammar`
-                  : "Open any word, kanji, or grammar point to add it to your deck."}
+                  ? t("home.cards_ready", { n: startCount })
+                  : t("home.open_to_add")}
               </CardDescription>
             </div>
             {data.queuePreview.length > 0 && (
               <Link href="/review">
                 <Button>
                   <Sparkles className="w-4 h-4" />
-                  Start
+                  {t("common.start")}
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
@@ -161,28 +168,24 @@ export default async function Home() {
         </CardHeader>
         <CardBody className="space-y-4">
           <div className="grid grid-cols-3 gap-3">
-            <TypePill icon={<Languages className="w-4 h-4" />} label="Vocab" count={data.dueByType.vocab} href="/vocabulary" />
-            <TypePill icon={<FileText className="w-4 h-4" />} label="Kanji" count={data.dueByType.kanji} href="/kanji" />
-            <TypePill icon={<BookOpen className="w-4 h-4" />} label="Grammar" count={data.dueByType.grammar} href="/grammar" />
+            <TypePill icon={<Languages className="w-4 h-4" />} label={t("home.cat.vocabulary")} count={data.dueByType.vocab} href="/vocabulary" />
+            <TypePill icon={<FileText className="w-4 h-4" />} label={t("home.cat.kanji")} count={data.dueByType.kanji} href="/kanji" />
+            <TypePill icon={<BookOpen className="w-4 h-4" />} label={t("home.cat.grammar")} count={data.dueByType.grammar} href="/grammar" />
           </div>
 
           {data.queuePreview.length > 0 ? (
             <div>
-              <div className="text-xs uppercase tracking-wide text-muted mb-2">Up next</div>
+              <div className="text-xs uppercase tracking-wide text-muted mb-2">{t("home.up_next")}</div>
               <div className="grid gap-2">
                 {data.queuePreview.map((q) => (
-                  <QueuePreviewRow key={q.cardId} item={q} />
+                  <QueuePreviewRow key={q.cardId} item={q} t={t} locale={locale} />
                 ))}
               </div>
             </div>
           ) : (
             <div className="px-4 py-6 rounded-lg bg-primary-soft text-sm text-center">
-              <p className="font-medium text-foreground">Your deck is empty.</p>
-              <p className="text-muted mt-1">
-                Browse <Link className="text-primary underline" href="/vocabulary">vocabulary</Link>,{" "}
-                <Link className="text-primary underline" href="/kanji">kanji</Link>, or{" "}
-                <Link className="text-primary underline" href="/grammar">grammar</Link> and open any item to add it.
-              </p>
+              <p className="font-medium text-foreground">{t("home.deck_empty")}</p>
+              <p className="text-muted mt-1">{t("home.browse_to_add")}</p>
             </div>
           )}
         </CardBody>
@@ -191,12 +194,8 @@ export default async function Home() {
       {data.totals.vocab === 0 && data.totals.kanji === 0 && data.totals.grammar === 0 && (
         <Card className="border-amber-200 bg-amber-50">
           <CardBody className="text-sm">
-            <p className="font-medium text-amber-900">No content yet</p>
-            <p className="text-amber-800 mt-1">
-              Run <code className="px-1.5 py-0.5 bg-amber-100 rounded font-mono text-xs">npm run seed</code> to load
-              starter Japanese content (kana, basic vocab, N5 grammar, common kanji). Then import Genki lessons via{" "}
-              <code className="px-1.5 py-0.5 bg-amber-100 rounded font-mono text-xs">npm run seed:genki</code>.
-            </p>
+            <p className="font-medium text-amber-900">{t("home.no_content_title")}</p>
+            <p className="text-amber-800 mt-1">{t("home.no_content_body")}</p>
           </CardBody>
         </Card>
       )}
@@ -235,10 +234,10 @@ function StatCard({
   );
 }
 
-function nextMilestoneLabel(streak: number): string {
+function nextMilestoneLabel(streak: number, t: T): string {
   const next = STREAK_MILESTONES.find((m) => m > streak);
-  if (!next) return "All milestones reached!";
-  return `Next milestone: ${next} days`;
+  if (!next) return t("home.all_milestones");
+  return t("home.next_milestone", { n: next });
 }
 
 function streakMilestonePct(streak: number): number {
@@ -253,6 +252,7 @@ const STREAK_MILESTONES = [3, 7, 14, 30, 60, 100, 200, 365];
 type CategoryProgress = { learned: number; learning: number; total: number };
 
 function LevelProgressSection({
+  t,
   jlpt,
   xp,
   xpLevel,
@@ -260,6 +260,7 @@ function LevelProgressSection({
   xpNeeded,
   progress,
 }: {
+  t: T;
   jlpt: number;
   xp: number;
   xpLevel: number;
@@ -276,38 +277,38 @@ function LevelProgressSection({
       <CardHeader>
         <div className="flex items-center justify-between gap-3">
           <div>
-            <CardTitle>Your N{jlpt} progress</CardTitle>
+            <CardTitle>{t("home.your_progress", { level: jlpt })}</CardTitle>
             <CardDescription>
               {totalAll > 0
-                ? `${learnedAll} of ${totalAll} items learned at this level (${overallPct}%)`
-                : "Switch level in the navbar to see progress."}
+                ? t("home.progress_summary", { learned: learnedAll, total: totalAll, pct: overallPct })
+                : t("home.switch_level_hint")}
             </CardDescription>
           </div>
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-koi-gradient text-white">
             <Trophy className="w-4 h-4" />
-            <span className="text-sm font-medium">Level {xpLevel}</span>
+            <span className="text-sm font-medium">{t("home.level_label", { n: xpLevel })}</span>
           </div>
         </div>
       </CardHeader>
       <CardBody className="space-y-4">
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-muted">XP to next level</span>
-            <span className="font-mono text-muted">{xpCurrent} / {xpNeeded} XP ({xp.toLocaleString()} total)</span>
+            <span className="text-muted">{t("home.xp_to_next")}</span>
+            <span className="font-mono text-muted">{t("home.xp_total", { current: xpCurrent, needed: xpNeeded, total: xp.toLocaleString() })}</span>
           </div>
           <Progress value={xpNeeded === 0 ? 0 : (xpCurrent / xpNeeded) * 100} />
         </div>
         <div className="space-y-3">
-          <ProgressRow icon={<BookOpen className="w-4 h-4" />} label="Grammar" data={progress.grammar} />
-          <ProgressRow icon={<Languages className="w-4 h-4" />} label="Vocabulary" data={progress.vocab} />
-          <ProgressRow icon={<FileText className="w-4 h-4" />} label="Kanji" data={progress.kanji} />
+          <ProgressRow t={t} icon={<BookOpen className="w-4 h-4" />} label={t("home.cat.grammar")} data={progress.grammar} />
+          <ProgressRow t={t} icon={<Languages className="w-4 h-4" />} label={t("home.cat.vocabulary")} data={progress.vocab} />
+          <ProgressRow t={t} icon={<FileText className="w-4 h-4" />} label={t("home.cat.kanji")} data={progress.kanji} />
         </div>
       </CardBody>
     </Card>
   );
 }
 
-function ProgressRow({ icon, label, data }: { icon: React.ReactNode; label: string; data: CategoryProgress }) {
+function ProgressRow({ t, icon, label, data }: { t: T; icon: React.ReactNode; label: string; data: CategoryProgress }) {
   const pct = data.total === 0 ? 0 : Math.round((data.learned / data.total) * 100);
   return (
     <div className="space-y-1.5">
@@ -317,7 +318,7 @@ function ProgressRow({ icon, label, data }: { icon: React.ReactNode; label: stri
           {label}
         </span>
         <span className="text-xs text-muted font-mono">
-          {data.learned} learned · {data.learning} in progress · {data.total} total
+          {t("home.progress_row", { learned: data.learned, learning: data.learning, total: data.total })}
         </span>
       </div>
       <Progress value={pct} />
@@ -346,9 +347,11 @@ type PreviewItem = {
   payload: Record<string, unknown>;
 };
 
-function QueuePreviewRow({ item }: { item: PreviewItem }) {
+function QueuePreviewRow({ item, t, locale }: { item: PreviewItem; t: T; locale: Locale }) {
   const p = item.payload;
-  const stateLabel = item.state === "new" ? "new" : item.state === "learning" ? "learning" : "review";
+  const meanings = pickL(locale, p.meanings as string[], (p.meaningsUk as string[]) ?? null);
+  const title = pickL(locale, p.title as string, (p.titleUk as string) ?? null);
+  const stateLabel = item.state === "new" ? t("common.in_deck") : item.state === "learning" ? t("common.learning") : t("common.learned");
   const stateColor = item.state === "new" ? "bg-primary-soft text-primary" : item.state === "learning" ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700";
   return (
     <div className="flex items-center gap-3 px-3 py-2 rounded-lg border border-border bg-background">
@@ -359,11 +362,11 @@ function QueuePreviewRow({ item }: { item: PreviewItem }) {
         <span className="jp text-2xl font-medium text-primary">{String(p.character)}</span>
       )}
       {item.itemType === "grammar" && (
-        <span className="font-medium text-sm">{String(p.title)}</span>
+        <span className="font-medium text-sm">{String(title)}</span>
       )}
       <span className="text-xs text-muted truncate flex-1 min-w-0">
-        {item.itemType === "vocab" && (p.meanings as string[])?.join(", ")}
-        {item.itemType === "kanji" && (p.meanings as string[])?.join(", ")}
+        {item.itemType === "vocab" && meanings?.join(", ")}
+        {item.itemType === "kanji" && meanings?.join(", ")}
         {item.itemType === "grammar" && `N${p.jlptLevel}`}
       </span>
       <span className={"text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded font-medium " + stateColor}>

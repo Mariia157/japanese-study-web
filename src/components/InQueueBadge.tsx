@@ -1,18 +1,18 @@
 import { Check, Sparkles } from "lucide-react";
 
-export function InQueueBadge({ added }: { added: boolean }) {
+export function InQueueBadge({ added, addedLabel = "Added to deck", inDeckLabel = "In your deck" }: { added: boolean; addedLabel?: string; inDeckLabel?: string }) {
   if (added) {
     return (
       <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-koi-gradient text-white text-xs font-medium shadow-sm">
         <Sparkles className="w-3.5 h-3.5" />
-        Added to deck
+        {addedLabel}
       </div>
     );
   }
   return (
     <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary-soft text-primary text-xs font-medium">
       <Check className="w-3.5 h-3.5" />
-      In your deck
+      {inDeckLabel}
     </div>
   );
 }

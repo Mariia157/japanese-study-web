@@ -6,6 +6,8 @@ import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Furigana } from "@/components/Furigana";
 import { InQueueBadge } from "@/components/InQueueBadge";
 import { BackButton } from "@/components/BackButton";
+import { getT, getLocale } from "@/lib/i18n";
+import { pickL } from "@/lib/i18n-shared";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +16,8 @@ export default async function VocabDetail({ params }: { params: Promise<{ id: st
   const id = Number(idStr);
   if (!Number.isInteger(id)) notFound();
 
+  const t = await getT();
+  const locale = await getLocale();
   const word = await db.vocabulary.findUnique({
     where: { id },
     include: {
@@ -30,19 +34,19 @@ export default async function VocabDetail({ params }: { params: Promise<{ id: st
   const isNew = !cardBefore;
   await createCardIfMissing("vocab", id);
 
-  const meanings = JSON.parse(word.meanings) as string[];
-  const pos = JSON.parse(word.partOfSpeech) as string[];
+  const meanings = JSON.parse(pickL(locale, word.meanings, word.meaningsUk)) as string[];
+  const pos = JSON.parse(pickL(locale, word.partOfSpeech, word.partOfSpeechUk)) as string[];
 
   return (
     <div className="max-w-3xl mx-auto space-y-4">
-      <BackButton />
+      <BackButton label={t("common.back")} />
       <header className="space-y-2">
         <div className="text-xs uppercase tracking-wide text-muted">
-          N{word.jlptLevel}{word.source ? ` · ${word.source}` : ""} · {pos.join(", ") || "vocabulary"}
+          N{word.jlptLevel}{word.source ? ` · ${word.source}` : ""} · {pos.join(", ") || t("vocab.title")}
         </div>
         <div className="flex items-start justify-between gap-3">
           <Furigana word={word.word} reading={word.reading} size="xl" className="text-5xl font-medium" />
-          <InQueueBadge added={isNew} />
+          <InQueueBadge added={isNew} addedLabel={t("common.added_to_deck")} inDeckLabel={t("common.in_your_deck")} />
         </div>
         <div className="text-lg text-muted">{meanings.join(", ")}</div>
       </header>
@@ -50,7 +54,7 @@ export default async function VocabDetail({ params }: { params: Promise<{ id: st
       {word.kanji.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Kanji used</CardTitle>
+            <CardTitle>{t("vocab.detail.kanji_used")}</CardTitle>
           </CardHeader>
           <CardBody className="flex flex-wrap gap-2">
             {word.kanji.map((k) => (
@@ -60,7 +64,7 @@ export default async function VocabDetail({ params }: { params: Promise<{ id: st
                 className="px-3 py-2 bg-primary-soft rounded-lg hover:bg-primary-soft-2 transition-colors"
               >
                 <span className="jp text-2xl font-medium text-primary mr-2">{k.kanji.character}</span>
-                <span className="text-sm text-muted">{(JSON.parse(k.kanji.meanings) as string[])[0]}</span>
+                <span className="text-sm text-muted">{(JSON.parse(pickL(locale, k.kanji.meanings, k.kanji.meaningsUk)) as string[])[0]}</span>
               </Link>
             ))}
           </CardBody>
@@ -70,7 +74,7 @@ export default async function VocabDetail({ params }: { params: Promise<{ id: st
       {word.examples.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Examples</CardTitle>
+            <CardTitle>{t("vocab.detail.examples")}</CardTitle>
           </CardHeader>
           <CardBody className="space-y-2">
             {word.examples.map((e) => (

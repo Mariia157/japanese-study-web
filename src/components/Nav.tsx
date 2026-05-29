@@ -2,17 +2,18 @@ import Image from "next/image";
 import Link from "next/link";
 import { Flame, BookOpen, Languages, Sparkles, Home as HomeIcon, BarChart3 } from "lucide-react";
 import { getCurrentLevel } from "@/lib/level";
+import { getT, getLocale } from "@/lib/i18n";
 import { LevelSwitcher } from "@/components/LevelSwitcher";
+import { LocaleSwitcher } from "@/components/LocaleSwitcher";
 import { PracticeMenu } from "@/components/PracticeMenu";
 
-const links = [
-  { href: "/", label: "Home", icon: HomeIcon },
-  { href: "/grammar", label: "Grammar", icon: BookOpen },
-  { href: "/vocabulary", label: "Vocabulary", icon: Languages },
-];
-
 export async function Nav() {
-  const level = await getCurrentLevel();
+  const [level, locale, t] = await Promise.all([getCurrentLevel(), getLocale(), getT()]);
+  const links = [
+    { href: "/", label: t("nav.home"), icon: HomeIcon },
+    { href: "/grammar", label: t("nav.grammar"), icon: BookOpen },
+    { href: "/vocabulary", label: t("nav.vocab_short"), icon: Languages },
+  ];
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-4">
@@ -34,16 +35,17 @@ export async function Nav() {
               </Link>
             );
           })}
-          <PracticeMenu />
+          <PracticeMenu practiceLabel={t("nav.practice")} listeningLabel={t("nav.listening")} readingLabel={t("nav.reading")} />
         </nav>
         <div className="flex-1" />
         <Link
           href="/stats"
           className="hidden sm:inline-flex items-center justify-center w-8 h-8 rounded-md text-muted hover:text-foreground hover:bg-primary-soft transition-colors"
-          title="Stats"
+          title={t("nav.stats")}
         >
           <BarChart3 className="w-4 h-4" />
         </Link>
+        <LocaleSwitcher current={locale} />
         <LevelSwitcher current={level} />
         <StreakBadge />
       </div>

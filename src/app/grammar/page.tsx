@@ -5,11 +5,15 @@ import { Button } from "@/components/ui/Button";
 import { Progress } from "@/components/ui/Progress";
 import { ChevronRight, GraduationCap, BookOpen } from "lucide-react";
 import { getCurrentLevel } from "@/lib/level";
+import { getT, getLocale } from "@/lib/i18n";
+import { pickL } from "@/lib/i18n-shared";
 
 export const dynamic = "force-dynamic";
 
 export default async function GrammarPage() {
   const level = await getCurrentLevel();
+  const t = await getT();
+  const locale = await getLocale();
   const sections = await db.grammarSection.findMany({
     where: { jlptLevel: level },
     orderBy: { order: "asc" },
@@ -34,16 +38,14 @@ export default async function GrammarPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-3xl font-semibold">Grammar</h1>
-        <p className="text-sm text-muted mt-1">
-          Showing N{level}. Complete each section&apos;s topics, then run the section review quiz to mix all points together with new questions.
-        </p>
+        <h1 className="text-3xl font-semibold">{t("grammar.title")}</h1>
+        <p className="text-sm text-muted mt-1">{t("grammar.subtitle", { level })}</p>
       </header>
 
       {sections.length === 0 && orphans.length === 0 ? (
         <Card>
           <CardBody className="py-12 text-center text-muted">
-            No grammar at this level yet. Run <code className="font-mono text-xs px-1 py-0.5 bg-primary-soft rounded">npm run seed:genki</code>.
+            {t("grammar.no_content")}
           </CardBody>
         </Card>
       ) : (
@@ -60,14 +62,14 @@ export default async function GrammarPage() {
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
                         <GraduationCap className="w-4 h-4 text-primary" />
-                        <CardTitle>{s.title}</CardTitle>
+                        <CardTitle>{pickL(locale, s.title, s.titleUk)}</CardTitle>
                       </div>
-                      {s.summary && <CardDescription>{s.summary}</CardDescription>}
+                      {(pickL(locale, s.summary, s.summaryUk)) && <CardDescription>{pickL(locale, s.summary, s.summaryUk)}</CardDescription>}
                     </div>
                     {s.reviews.length > 0 && (
                       <Link href={`/grammar/section/${s.slug}`}>
                         <Button variant={sectionComplete ? "primary" : "soft"} size="sm">
-                          {sectionComplete ? "Section review" : "Preview review"}
+                          {sectionComplete ? t("grammar.section_review") : t("grammar.preview_review")}
                         </Button>
                       </Link>
                     )}
@@ -75,7 +77,7 @@ export default async function GrammarPage() {
                 </CardHeader>
                 <CardBody className="space-y-3">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted">{learned} / {total} topics learned</span>
+                    <span className="text-muted">{t("grammar.topics_learned", { learned, total })}</span>
                     <span className="font-mono text-muted">{pct}%</span>
                   </div>
                   <Progress value={pct} />
@@ -92,7 +94,7 @@ export default async function GrammarPage() {
                         >
                           <span className="flex items-center gap-2 min-w-0">
                             <BookOpen className="w-3.5 h-3.5 text-primary shrink-0" />
-                            <span className="text-sm font-medium truncate">{p.title}</span>
+                            <span className="text-sm font-medium truncate">{pickL(locale, p.title, p.titleUk)}</span>
                           </span>
                           <ChevronRight className="w-3.5 h-3.5 text-muted shrink-0" />
                         </div>
@@ -107,14 +109,14 @@ export default async function GrammarPage() {
           {orphans.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle>Other grammar points</CardTitle>
-                <CardDescription>Topics not assigned to a section.</CardDescription>
+                <CardTitle>{t("grammar.other_points")}</CardTitle>
+                <CardDescription>{t("grammar.other_points_desc")}</CardDescription>
               </CardHeader>
               <CardBody className="grid sm:grid-cols-2 gap-2">
                 {orphans.map((p) => (
                   <Link key={p.id} href={`/grammar/${p.slug}`}>
                     <div className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg border border-border hover:border-primary hover:bg-primary-soft transition-colors">
-                      <span className="text-sm font-medium truncate">{p.title}</span>
+                      <span className="text-sm font-medium truncate">{pickL(locale, p.title, p.titleUk)}</span>
                       <ChevronRight className="w-3.5 h-3.5 text-muted shrink-0" />
                     </div>
                   </Link>
