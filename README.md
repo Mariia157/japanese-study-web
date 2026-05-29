@@ -29,10 +29,62 @@ npm install
 npm run db:migrate           # создаст SQLite БД и применит миграции
 npm run seed                 # стартовый набор N5 (радикалы, кандзи, слова, грамматика, listening, reading)
 npm run seed:genki           # курированный Genki 1+2: 44 грамматические точки + 88 слов
+npm run seed:vocab           # расширенный словарь (~300 слов N5/N4/N3)
+npm run seed:content:v3      # 12 listening + 15 reading на N5/N4/N3 (заменяет старые)
+npm run seed:content:extra   # ещё 9 listening + 10 reading на N4/N3
+npm run seed:examples        # ~157 примеров предложений для словаря
+npm run translate:uk         # заполнить украинские поля
 npm run dev
 ```
 
 Открой <http://localhost:3000>.
+
+## Перенос на другой Windows-ПК
+
+В корне репозитория лежат `setup.bat` + `setup.ps1` — двоклик `setup.bat` поднимает проект на чистом ПК с нуля.
+
+### Что делает setup.ps1
+
+1. Проверяет наличие `node` / `npm`
+2. `npm install`
+3. Создаёт `.env` с `DATABASE_URL`, если его нет
+4. `npx prisma generate` + `npx prisma migrate deploy`
+5. Если `dev.db` уже скопирован — пропускает сидинг (сохраняет SRS-прогресс)
+   Если `dev.db` отсутствует — запускает все сидеры по порядку
+6. `npm run dev` → сайт на `http://localhost:3000`
+
+### Пошагово
+
+**Если хочешь сохранить прогресс SRS** (повторения, XP, стрик):
+
+1. На исходном ПК скопируй папку `japanese-srs` целиком, **кроме** `node_modules` и `.next` (они большие и пересоздаются)
+2. Убедись, что вместе с проектом скопировался файл `dev.db` в корне репозитория — он содержит весь прогресс
+3. Перенеси папку на новый ПК (USB / архив / OneDrive)
+4. Установи [Node.js LTS](https://nodejs.org) (один раз; даст `node` и `npm`)
+5. Двоклик `setup.bat` в скопированной папке
+6. Дождись надписи `Site will be available at http://localhost:3000` и открой её в браузере
+
+**Если прогресс не нужен** — просто склонируй репозиторий:
+
+```powershell
+git clone https://github.com/Mariia157/japanese-study-web.git
+cd japanese-study-web
+.\setup.bat
+```
+
+`dev.db` будет отсутствовать, и скрипт автоматически прогонит все сидеры (~3–5 минут на первый запуск).
+
+### Если PowerShell ругается на политику безопасности
+
+Скрипт `setup.bat` уже передаёт `-ExecutionPolicy Bypass`, так что вручную ничего менять не нужно. Если всё-таки требуется — один раз в админском PowerShell:
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+```
+
+### Последующие запуски
+
+Достаточно `npm run dev` в терминале из папки проекта (или снова двоклик `setup.bat` — он за пару секунд проверит зависимости и запустит сервер).
 
 ## Архитектура
 
@@ -119,8 +171,14 @@ Ease factor имеет нижнюю границу 1.3. Все 6 тест-кей
 | `npm test` | Юнит-тесты SM-2 (Vitest) |
 | `npm run db:migrate` | Применить Prisma-миграции |
 | `npm run db:studio` | Prisma Studio (визуальный браузер БД) |
-| `npm run seed` | Стартовый набор контента |
-| `npm run seed:genki` | Курированный Genki 1+2 |
+| `npm run seed` | Стартовый набор контента (N5: радикалы, кандзи, слова, грамматика) |
+| `npm run seed:genki` | Курированный Genki 1+2 — 44 грамм. точки |
+| `npm run seed:vocab` | Расширенный словарь (~300 слов N5/N4/N3) |
+| `npm run seed:content:v3` | Listening + reading с картинками (заменяет существующие) |
+| `npm run seed:content:extra` | Дополнительные N4/N3 listening + reading |
+| `npm run seed:examples` | Примеры предложений для словаря |
+| `npm run seed:explanations` | Развёрнутые объяснения грамматики |
+| `npm run translate:uk` | Заполнить украинские поля на основе английских |
 | `npm run seed:genki:pdf` | Импорт PDF (если есть текстовый слой) |
 
 ## Лицензия

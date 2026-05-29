@@ -216,6 +216,126 @@ const EXAMPLES: Record<string, Example[]> = {
   "二つ": [
     { jp: "パンを二つ買いました。", en: "I bought two pieces of bread." },
   ],
+
+  // ==========================================================
+  // N4 example sentences
+  // ==========================================================
+  "会社": [
+    { jp: "兄は大きな会社で働いています。", en: "My older brother works at a big company." },
+    { jp: "会社まで電車で三十分かかります。", en: "It takes 30 minutes to the company by train." },
+  ],
+  "仕事": [
+    { jp: "今日は仕事が忙しかったです。", en: "Work was busy today." },
+    { jp: "彼は仕事ができる人です。", en: "He's a capable worker." },
+  ],
+  "会議": [
+    { jp: "明日の会議は三時からです。", en: "Tomorrow's meeting starts at 3." },
+    { jp: "会議で新しいアイデアを出しました。", en: "I shared a new idea at the meeting." },
+  ],
+  "宿題": [
+    { jp: "宿題はもう終わりました。", en: "I've already finished my homework." },
+    { jp: "今日の宿題は難しいです。", en: "Today's homework is difficult." },
+  ],
+  "試験": [
+    { jp: "来週、日本語の試験があります。", en: "There's a Japanese exam next week." },
+    { jp: "試験に合格しました。", en: "I passed the exam." },
+  ],
+  "授業": [
+    { jp: "九時から授業が始まります。", en: "Class begins at 9." },
+    { jp: "今日は授業が三つあります。", en: "I have three classes today." },
+  ],
+  "息子": [
+    { jp: "息子は小学生です。", en: "My son is in elementary school." },
+    { jp: "息子と公園で遊びました。", en: "I played with my son at the park." },
+  ],
+  "娘": [
+    { jp: "娘はピアノを習っています。", en: "My daughter is learning piano." },
+    { jp: "娘の誕生日は来月です。", en: "My daughter's birthday is next month." },
+  ],
+  "彼女": [
+    { jp: "彼女と映画を見ました。", en: "I watched a movie with her." },
+    { jp: "彼女はとても優しい人です。", en: "She is a very kind person." },
+  ],
+  "決める": [
+    { jp: "旅行の場所を決めました。", en: "I decided on the travel destination." },
+    { jp: "早く決めてください。", en: "Please decide quickly." },
+  ],
+  "選ぶ": [
+    { jp: "好きな色を選んでください。", en: "Please choose the color you like." },
+    { jp: "メニューから魚を選びました。", en: "I chose fish from the menu." },
+  ],
+  "変える": [
+    { jp: "予定を変えました。", en: "I changed the schedule." },
+    { jp: "髪型を変えたいです。", en: "I want to change my hairstyle." },
+  ],
+  "始まる": [
+    { jp: "映画は何時に始まりますか。", en: "What time does the movie start?" },
+    { jp: "新しい一週間が始まる。", en: "A new week is beginning." },
+  ],
+  "終わる": [
+    { jp: "授業は三時に終わります。", en: "Class ends at 3." },
+    { jp: "やっと宿題が終わりました。", en: "I finally finished my homework." },
+  ],
+  "間違える": [
+    { jp: "答えを間違えました。", en: "I got the answer wrong." },
+    { jp: "誰でも間違えることがあります。", en: "Anyone can make mistakes." },
+  ],
+  "壊れる": [
+    { jp: "時計が壊れています。", en: "The clock is broken." },
+    { jp: "雨で傘が壊れた。", en: "The umbrella broke from the rain." },
+  ],
+  "嬉しい": [
+    { jp: "プレゼントをもらって嬉しいです。", en: "I'm happy to receive a present." },
+    { jp: "会えて嬉しかったです。", en: "I was glad to see you." },
+  ],
+  "悲しい": [
+    { jp: "悲しい映画でした。", en: "It was a sad movie." },
+    { jp: "猫が死んで悲しいです。", en: "I'm sad because my cat died." },
+  ],
+  "心配": [
+    { jp: "心配しないでください。", en: "Please don't worry." },
+    { jp: "母は私のことを心配しています。", en: "My mom is worried about me." },
+  ],
+  "予約": [
+    { jp: "レストランを予約しました。", en: "I made a restaurant reservation." },
+    { jp: "ホテルの予約をお願いします。", en: "Please make a hotel reservation." },
+  ],
+  "約束": [
+    { jp: "友達と約束があります。", en: "I have an appointment with a friend." },
+    { jp: "約束を守ってください。", en: "Please keep your promise." },
+  ],
+  "意見": [
+    { jp: "皆さんの意見を聞きたいです。", en: "I'd like to hear everyone's opinion." },
+    { jp: "私の意見は違います。", en: "My opinion is different." },
+  ],
+  "趣味": [
+    { jp: "私の趣味は読書です。", en: "My hobby is reading." },
+    { jp: "彼の趣味は何ですか。", en: "What is his hobby?" },
+  ],
+  "夢": [
+    { jp: "子供の頃の夢は医者でした。", en: "My childhood dream was to be a doctor." },
+    { jp: "昨夜、変な夢を見ました。", en: "I had a strange dream last night." },
+  ],
+  "経験": [
+    { jp: "日本での経験は貴重でした。", en: "My experience in Japan was precious." },
+    { jp: "彼は教える経験が豊富です。", en: "He has rich teaching experience." },
+  ],
+  "問題": [
+    { jp: "この問題は難しいです。", en: "This problem is difficult." },
+    { jp: "何か問題がありますか。", en: "Is there any problem?" },
+  ],
+  "理由": [
+    { jp: "遅れた理由を教えてください。", en: "Please tell me the reason you were late." },
+    { jp: "理由は分かりません。", en: "I don't know the reason." },
+  ],
+  "場所": [
+    { jp: "会う場所を決めましょう。", en: "Let's decide where to meet." },
+    { jp: "ここは静かな場所です。", en: "This is a quiet place." },
+  ],
+  "予定": [
+    { jp: "明日の予定は何ですか。", en: "What are your plans for tomorrow?" },
+    { jp: "週末は予定がありません。", en: "I have no plans for the weekend." },
+  ],
 };
 
 async function main() {
