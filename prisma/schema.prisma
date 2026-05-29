@@ -1,0 +1,205 @@
+// Prisma schema for Japanese SRS
+// Local: SQLite (file://./dev.db). Production: switch to PostgreSQL via DATABASE_URL.
+// Most array/json fields use String JSON for SQLite portability.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ===== Content =====
+
+model Radical {
+  id        Int            @id @default(autoincrement())
+  character String         @unique
+  meaning   String
+  kanji     KanjiRadical[]
+}
+
+model Kanji {
+  id          Int            @id @default(autoincrement())
+  character   String         @unique
+  meanings    String         // JSON string array
+  onReadings  String         // JSON string array (katakana)
+  kunReadings String         // JSON string array (hiragana)
+  jlptLevel   Int            // 5..1
+  strokeCount Int            @default(0)
+  mnemonic    String?        // user-editable
+  radicals    KanjiRadical[]
+  vocabulary  VocabularyKanji[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([jlptLevel])
+}
+
+model KanjiRadical {
+  kanjiId   Int
+  radicalId Int
+  kanji     Kanji   @relation(fields: [kanjiId], references: [id], onDelete: Cascade)
+  radical   Radical @relation(fields: [radicalId], references: [id], onDelete: Cascade)
+
+  @@id([kanjiId, radicalId])
+}
+
+model Vocabulary {
+  id           Int               @id @default(autoincrement())
+  word         String            // e.g. 食べる
+  reading      String            // hiragana/katakana e.g. たべる
+  meanings     String            // JSON string array
+  partOfSpeech String            // JSON string array (verb, noun, ...)
+  jlptLevel    Int
+  source       String?           // e.g. "genki-L3", "jmdict"
+  kanji        VocabularyKanji[]
+  examples     VocabularyExample[]
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  @@unique([word, reading])
+  @@index([jlptLevel])
+}
+
+model VocabularyKanji {
+  vocabularyId Int
+  kanjiId      Int
+  vocabulary   Vocabulary @relation(fields: [vocabularyId], references: [id], onDelete: Cascade)
+  kanji        Kanji      @relation(fields: [kanjiId], references: [id], onDelete: Cascade)
+
+  @@id([vocabularyId, kanjiId])
+}
+
+model ExampleSentence {
+  id        Int                 @id @default(autoincrement())
+  japanese  String
+  english   String
+  audioUrl  String?
+  vocab     VocabularyExample[]
+}
+
+model VocabularyExample {
+  vocabularyId Int
+  exampleId    Int
+  vocabulary   Vocabulary      @relation(fields: [vocabularyId], references: [id], onDelete: Cascade)
+  example      ExampleSentence @relation(fields: [exampleId], references: [id], onDelete: Cascade)
+
+  @@id([vocabularyId, exampleId])
+}
+
+model GrammarPoint {
+  id          Int               @id @default(autoincrement())
+  title       String
+  slug        String            @unique
+  jlptLevel   Int
+  source      String?           // e.g. "genki-L1"
+  explanation String            // markdown
+  examples    String            // JSON: [{jp, en, note}]
+  exercises   GrammarExercise[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([jlptLevel])
+}
+
+model GrammarExercise {
+  id          Int          @id @default(autoincrement())
+  grammarId   Int
+  type        String       // "mcq" | "fill" | "translate"
+  prompt      String
+  choices     String       // JSON string array (empty for fill/translate)
+  answer      String       // canonical answer
+  explanation String?
+  grammar     GrammarPoint @relation(fields: [grammarId], references: [id], onDelete: Cascade)
+}
+
+model ListeningExercise {
+  id         Int    @id @default(autoincrement())
+  jlptLevel  Int
+  title      String
+  transcript String // Japanese text
+  english    String
+  audioUrl   String?
+  questions  String // JSON: [{q, choices, answer}]
+  createdAt  DateTime @default(now())
+
+  @@index([jlptLevel])
+}
+
+model ReadingExercise {
+  id         Int    @id @default(autoincrement())
+  jlptLevel  Int
+  title      String
+  text       String // Japanese text (may include kanji)
+  english    String
+  questions  String // JSON: [{q, choices, answer}]
+  createdAt  DateTime @default(now())
+
+  @@index([jlptLevel])
+}
+
+// ===== SRS =====
+
+model SrsCard {
+  id             Int       @id @default(autoincrement())
+  itemType       String    // "kanji" | "vocab" | "grammar"
+  itemId         Int
+  easeFactor     Float     @default(2.5)
+  intervalDays   Int       @default(0)
+  repetitions    Int       @default(0)
+  dueAt          DateTime
+  lastReviewedAt DateTime?
+  state          String    @default("new") // new | learning | review | suspended
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  reviews        ReviewLog[]
+
+  @@unique([itemType, itemId])
+  @@index([dueAt, state])
+}
+
+model ReviewLog {
+  id           Int      @id @default(autoincrement())
+  cardId       Int
+  grade        Int      // 1..4
+  prevInterval Int
+  newInterval  Int
+  reviewedAt   DateTime @default(now())
+  card         SrsCard  @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@index([reviewedAt])
+}
+
+// ===== Gamification =====
+
+model UserStats {
+  id            Int       @id @default(1)
+  xp            Int       @default(0)
+  streakDays    Int       @default(0)
+  lastStudyDate DateTime?
+  dailyGoal     Int       @default(20)
+  updatedAt     DateTime  @updatedAt
+}
+
+model Achievement {
+  id         Int       @id @default(autoincrement())
+  key        String    @unique
+  title      String
+  description String
+  unlockedAt DateTime?
+}
+
+model GrammarProgress {
+  grammarId   Int      @id
+  completedAt DateTime?
+}
+
+model LessonProgress {
+  // Genki track lesson completion
+  id          Int      @id @default(autoincrement())
+  source      String   // e.g. "genki-L1"
+  completedAt DateTime?
+
+  @@unique([source])
+}
