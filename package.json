@@ -23,6 +23,7 @@
     "seed:content:extra": "tsx scripts/seed-content-extra.ts",
     "seed:examples": "tsx scripts/seed-examples.ts",
     "translate:uk": "tsx scripts/translate-uk.ts",
+    "translate:uk:extra": "tsx scripts/translate-uk-extra.ts",
     "seed:genki:pdf": "tsx scripts/import-genki.ts"
   },
   "dependencies": {

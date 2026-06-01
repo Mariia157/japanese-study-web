@@ -93,7 +93,8 @@ if (Test-Path "dev.db") {
     @{ name = "Listening & reading v3"; cmd = "seed:content:v3" },
     @{ name = "Extra listening/reading"; cmd = "seed:content:extra" },
     @{ name = "Example sentences";      cmd = "seed:examples" },
-    @{ name = "Ukrainian translations"; cmd = "translate:uk" }
+    @{ name = "Ukrainian translations"; cmd = "translate:uk" },
+    @{ name = "Ukrainian (prose pass)";  cmd = "translate:uk:extra" }
   )
   foreach ($s in $seedSteps) {
     Write-Host "    -> $($s.name) (npm run $($s.cmd))" -ForegroundColor DarkGray

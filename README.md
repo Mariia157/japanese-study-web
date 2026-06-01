@@ -34,7 +34,8 @@ npm run seed:n5              # полный набор N5: 101 кандзи + ~2
 npm run seed:content:v3      # 12 listening + 15 reading на N5/N4/N3 (заменяет старые)
 npm run seed:content:extra   # ещё 9 listening + 10 reading на N4/N3
 npm run seed:examples        # ~157 примеров предложений для словаря
-npm run translate:uk         # заполнить украинские поля
+npm run translate:uk         # заполнить украинские поля (по словарям)
+npm run translate:uk:extra   # второй проход: мнемоники, объяснения грамматики, listening/reading
 npm run dev
 ```
 
@@ -212,7 +213,8 @@ await db.$disconnect();
 | `npm run seed:content:extra` | Дополнительные N4/N3 listening + reading |
 | `npm run seed:examples` | Примеры предложений для словаря |
 | `npm run seed:explanations` | Развёрнутые объяснения грамматики |
-| `npm run translate:uk` | Заполнить украинские поля на основе английских |
+| `npm run translate:uk` | Заполнить украинские поля на основе английских (словари) |
+| `npm run translate:uk:extra` | Второй проход: мнемоники кандзи, объяснения и примеры грамматики, listening/reading |
 | `npm run seed:genki:pdf` | Импорт PDF (если есть текстовый слой) |
 
 ## Лицензия
