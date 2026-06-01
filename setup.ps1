@@ -92,6 +92,7 @@ if (Test-Path "dev.db") {
     @{ name = "Extra N5 kanji & vocab"; cmd = "seed:n5" },
     @{ name = "Radicals & kanji links"; cmd = "seed:radicals" },
     @{ name = "More N5 kanji & vocab";  cmd = "seed:n5:more" },
+    @{ name = "More vocab N5/N4/N3";    cmd = "seed:vocab:more" },
     @{ name = "Listening & reading v3"; cmd = "seed:content:v3" },
     @{ name = "Extra listening/reading"; cmd = "seed:content:extra" },
     @{ name = "Example sentences";      cmd = "seed:examples" },

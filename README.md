@@ -33,6 +33,7 @@ npm run seed:vocab           # расширенный словарь (~300 сл�
 npm run seed:n5              # полный набор N5: 101 кандзи + ~210 слов
 npm run seed:radicals        # радикалы + разбор кандзи по радикалам
 npm run seed:n5:more         # ещё N5: кандзи 車/休 + ~90 слов
+npm run seed:vocab:more      # ещё ~90 слов N5/N4/N3 (времена года, глаголы, наречия)
 npm run seed:content:v3      # 12 listening + 15 reading на N5/N4/N3 (заменяет старые)
 npm run seed:content:extra   # ещё 9 listening + 10 reading на N4/N3
 npm run seed:examples        # ~157 примеров предложений для словаря
@@ -214,6 +215,7 @@ await db.$disconnect();
 | `npm run seed:n5` | Полный набор N5 — 101 кандзи + ~210 слов (с мнемониками и радикалами) |
 | `npm run seed:radicals` | Доп. радикалы + привязка кандзи к радикалам |
 | `npm run seed:n5:more` | Ещё N5 — кандзи 車/休 + ~90 слов (цвета, тело, время, вопросы, наречия) |
+| `npm run seed:vocab:more` | Ещё ~90 слов N5/N4/N3 (времена года, природа, глаголы, прилагательные, наречия) |
 | `npm run seed:content:v3` | Listening + reading с картинками (заменяет существующие) |
 | `npm run seed:content:extra` | Дополнительные N4/N3 listening + reading |
 | `npm run seed:examples` | Примеры предложений для словаря |
