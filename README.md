@@ -30,6 +30,7 @@ npm run db:migrate           # создаст SQLite БД и применит м
 npm run seed                 # стартовый набор N5 (радикалы, кандзи, слова, грамматика, listening, reading)
 npm run seed:genki           # курированный Genki 1+2: 44 грамматические точки + 88 слов
 npm run seed:vocab           # расширенный словарь (~300 слов N5/N4/N3)
+npm run seed:n5              # полный набор N5: 101 кандзи + ~210 слов
 npm run seed:content:v3      # 12 listening + 15 reading на N5/N4/N3 (заменяет старые)
 npm run seed:content:extra   # ещё 9 listening + 10 reading на N4/N3
 npm run seed:examples        # ~157 примеров предложений для словаря
@@ -206,6 +207,7 @@ await db.$disconnect();
 | `npm run seed` | Стартовый набор контента (N5: радикалы, кандзи, слова, грамматика) |
 | `npm run seed:genki` | Курированный Genki 1+2 — 44 грамм. точки |
 | `npm run seed:vocab` | Расширенный словарь (~300 слов N5/N4/N3) |
+| `npm run seed:n5` | Полный набор N5 — 101 кандзи + ~210 слов (с мнемониками и радикалами) |
 | `npm run seed:content:v3` | Listening + reading с картинками (заменяет существующие) |
 | `npm run seed:content:extra` | Дополнительные N4/N3 listening + reading |
 | `npm run seed:examples` | Примеры предложений для словаря |

@@ -89,6 +89,7 @@ if (Test-Path "dev.db") {
     @{ name = "Genki grammar";          cmd = "seed:genki" },
     @{ name = "Grammar explanations";   cmd = "seed:explanations" },
     @{ name = "Extra vocabulary";       cmd = "seed:vocab" },
+    @{ name = "Extra N5 kanji & vocab"; cmd = "seed:n5" },
     @{ name = "Listening & reading v3"; cmd = "seed:content:v3" },
     @{ name = "Extra listening/reading"; cmd = "seed:content:extra" },
     @{ name = "Example sentences";      cmd = "seed:examples" },
