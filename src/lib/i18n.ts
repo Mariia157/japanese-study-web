@@ -109,6 +109,18 @@ const STRINGS = {
   "practice.questions_title": { en: "Practice ({count} questions)", uk: "Практика ({count} питань)" },
   "practice.questions_desc": { en: "Mix of MCQ, fill-in, arrange-the-tokens, and translate-to-Japanese.", uk: "Мікс: вибір варіанту, заповнення, складання токенів, переклад." },
   "practice.no_questions": { en: "No practice questions for this grammar point yet.", uk: "Поки немає питань для цього правила." },
+  "practice.quiz_complete": { en: "Quiz complete — {score}/{total} correct", uk: "Тест завершено — {score}/{total} правильно" },
+  "practice.pct_perfect": { en: "{pct}% — Perfect!", uk: "{pct}% — Бездоганно!" },
+  "practice.pct_great": { en: "{pct}% — Great job!", uk: "{pct}% — Чудова робота!" },
+  "practice.pct_keep": { en: "{pct}% — Keep practicing!", uk: "{pct}% — Тренуйся далі!" },
+  "practice.progress": { en: "Question {i} / {total}", uk: "Питання {i} / {total}" },
+  "practice.score": { en: "Score: {score}", uk: "Бал: {score}" },
+  "practice.arrange_to_form": { en: "Arrange to form:", uk: "Склади речення:" },
+  "practice.arrange_hint": { en: "Click tokens below to assemble the sentence", uk: "Натискай токени нижче, щоб скласти речення" },
+  "practice.placeholder_translate": { en: "Type Japanese (romaji auto-converts)", uk: "Введи японською (ромадзі конвертується автоматично)" },
+  "practice.placeholder_answer": { en: "Type the answer…", uk: "Введи відповідь…" },
+  "practice.romaji_hint_pre": { en: "Type romaji like", uk: "Введи ромадзі, як-от" },
+  "practice.romaji_hint_mid": { en: "and it auto-converts to", uk: "— воно автоматично перетвориться на" },
 
   // Section review
   "section.back_to_grammar": { en: "Back to grammar", uk: "До граматики" },
