@@ -23,7 +23,7 @@ export default async function GrammarDetail({ params }: { params: Promise<{ slug
   });
   if (!point) notFound();
 
-  const examples = JSON.parse(point.examples) as { jp: string; en: string; note?: string }[];
+  const examples = JSON.parse(pickL(locale, point.examples, point.examplesUk)) as { jp: string; en: string; note?: string }[];
   const cardBefore = await db.srsCard.findUnique({
     where: { itemType_itemId: { itemType: "grammar", itemId: point.id } },
   });
@@ -44,7 +44,7 @@ export default async function GrammarDetail({ params }: { params: Promise<{ slug
       <Card>
         <CardHeader><CardTitle>{t("grammar.explanation")}</CardTitle></CardHeader>
         <CardBody className="prose prose-sm max-w-none">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{point.explanation}</ReactMarkdown>
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{pickL(locale, point.explanation, point.explanationUk)}</ReactMarkdown>
         </CardBody>
       </Card>
 
