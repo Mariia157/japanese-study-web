@@ -80,6 +80,7 @@ model ExampleSentence {
   id        Int                 @id @default(autoincrement())
   japanese  String
   english   String
+  englishUk String?
   audioUrl  String?
   vocab     VocabularyExample[]
 }
@@ -149,9 +150,11 @@ model GrammarExercise {
   grammarId   Int
   type        String       // "mcq" | "fill" | "arrange" | "translate"
   prompt      String
+  promptUk    String?
   choices     String       // JSON string array (empty for fill/translate)
   answer      String       // canonical answer
   explanation String?
+  explanationUk String?
   grammar     GrammarPoint @relation(fields: [grammarId], references: [id], onDelete: Cascade)
 }
 

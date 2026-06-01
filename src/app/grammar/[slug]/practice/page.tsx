@@ -21,10 +21,10 @@ export default async function GrammarPractice({ params }: { params: Promise<{ sl
   const exercises: Ex[] = point.exercises.map((e) => ({
     id: e.id,
     type: e.type as Ex["type"],
-    prompt: e.prompt,
+    prompt: pickL(locale, e.prompt, e.promptUk),
     choices: JSON.parse(e.choices),
     answer: e.answer,
-    explanation: e.explanation,
+    explanation: pickL(locale, e.explanation, e.explanationUk),
   }));
 
   return (

@@ -38,6 +38,7 @@ npm run seed:content:extra   # ещё 9 listening + 10 reading на N4/N3
 npm run seed:examples        # ~157 примеров предложений для словаря
 npm run translate:uk         # заполнить украинские поля (по словарям)
 npm run translate:uk:extra   # второй проход: мнемоники, объяснения грамматики, listening/reading
+npm run translate:uk:exercises # текст упражнений (промпты, пояснения) + примеры словаря
 npm run dev
 ```
 
@@ -219,6 +220,7 @@ await db.$disconnect();
 | `npm run seed:explanations` | Развёрнутые объяснения грамматики |
 | `npm run translate:uk` | Заполнить украинские поля на основе английских (словари) |
 | `npm run translate:uk:extra` | Второй проход: мнемоники кандзи, объяснения и примеры грамматики, listening/reading |
+| `npm run translate:uk:exercises` | Текст упражнений грамматики (промпты, пояснения) + примеры предложений словаря |
 | `npm run seed:genki:pdf` | Импорт PDF (если есть текстовый слой) |
 
 ## Лицензия

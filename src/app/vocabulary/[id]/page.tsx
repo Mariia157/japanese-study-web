@@ -88,7 +88,7 @@ export default async function VocabDetail({ params }: { params: Promise<{ id: st
                 </span>
                 <div className="min-w-0 flex-1 space-y-1">
                   <div className="jp text-lg leading-relaxed">{e.example.japanese}</div>
-                  <div className="text-sm text-muted">{e.example.english}</div>
+                  <div className="text-sm text-muted">{pickL(locale, e.example.english, e.example.englishUk)}</div>
                 </div>
               </li>
             ))}
