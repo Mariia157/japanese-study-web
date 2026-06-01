@@ -17,6 +17,7 @@
     "seed:explanations": "tsx scripts/seed-explanations.ts",
     "seed:vocab": "tsx scripts/seed-vocab-extra.ts",
     "seed:n5": "tsx scripts/seed-n5-extra.ts",
+    "seed:radicals": "tsx scripts/seed-radicals-extra.ts",
     "seed:content": "tsx scripts/seed-content.ts",
     "seed:content:v2": "tsx scripts/seed-content-v2.ts",
     "seed:content:v3": "tsx scripts/seed-content-v3.ts",
