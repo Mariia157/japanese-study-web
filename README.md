@@ -1,76 +1,83 @@
-# Nihongo SRS — изучение японского
+# Nihongo SRS: learn Japanese
 
-Персональное веб-приложение для изучения японского языка с системой spaced repetition (SM-2), охватывающее уровни JLPT N5–N1.
+A personal web app for learning Japanese with spaced repetition (SM-2), covering JLPT levels N5 to N1. The interface is available in English and Ukrainian.
 
-## Возможности
+![Kanji grid](docs/kanji.webp)
 
-- **SRS-движок (SM-2)** — словарь, кандзи и грамматика проходят через единый алгоритм интервальных повторений в стиле Anki
-- **Грамматика** — теория, примеры и квизы по каждой теме; курс структурирован по урокам Genki 1 + Genki 2
-- **Словарь** по уровням JLPT с одним кликом для добавления слова в очередь изучения
-- **Кандзи** с редактором мнемоник и разбором по радикалам
-- **Аудирование** и **чтение** — упражнения с проверочными вопросами; для звука используется Web Speech API (или Tatoeba, если есть)
-- **Фуригана** — автоматически отображается над кандзи в карточках ревью и списке слов
-- **Геймификация** — XP, ежедневный стрик, daily goal, ачивки
-- **Статистика** — heatmap активности за 12 недель, прогресс по уровням JLPT, разблокированные ачивки
-- **Переключатель уровня JLPT в навбаре** — выбранный уровень действует на все разделы сразу
+## Features
 
-## Стек
+- **SRS engine (SM-2).** Vocabulary, kanji and grammar all go through one Anki-style spaced repetition algorithm.
+- **Grammar.** Theory, examples and quizzes for every topic. The course follows the lessons of Genki 1 and Genki 2.
+- **Vocabulary** by JLPT level. One click adds a word to the study queue.
+- **Kanji** with a mnemonic editor and a breakdown by radicals.
+- **Listening** and **reading** exercises with comprehension questions. Audio uses the Web Speech API (or Tatoeba when available).
+- **Furigana** is shown automatically above kanji in review cards and word lists.
+- **Gamification:** XP, daily streak, daily goal, achievements.
+- **Statistics:** a 12-week activity heatmap, progress per JLPT level, unlocked achievements.
+- **JLPT level switcher** in the navbar. The selected level applies to every section at once.
+- **Responsive layout:** works from a 320 px phone screen up to a wide desktop.
+
+| Kanji card | Phone |
+|---|---|
+| ![Kanji card](docs/kanji-detail.webp) | <img src="docs/mobile.webp" alt="Mobile layout" width="220"> |
+
+## Stack
 
 - **Next.js 16** (App Router) + **TypeScript** + **Tailwind CSS v4**
-- **Prisma 7** + **better-sqlite3** (SQLite локально; на проде переключается на PostgreSQL через `DATABASE_URL`)
-- **Vitest** — юнит-тесты SM-2
-- shadcn/ui-стиль компоненты + lucide-иконки
-- Бело-фиолетовая цветовая палитра (`#7c3aed` + градиенты)
+- **Prisma 7** + **better-sqlite3** (SQLite locally; switches to PostgreSQL in production via `DATABASE_URL`)
+- **Vitest** for SM-2 unit tests
+- shadcn/ui-style components + lucide icons
+- Ukiyo-e inspired palette: vermilion, indigo, ochre and pine on a warm paper background
 
-## Локальный запуск
+## Running locally
 
 ```bash
 npm install
-npm run db:migrate           # создаст SQLite БД и применит миграции
-npm run seed                 # стартовый набор N5 (радикалы, кандзи, слова, грамматика, listening, reading)
-npm run seed:genki           # курированный Genki 1+2: 44 грамматические точки + 88 слов
-npm run seed:vocab           # расширенный словарь (~300 слов N5/N4/N3)
-npm run seed:n5              # полный набор N5: 101 кандзи + ~210 слов
-npm run seed:radicals        # радикалы + разбор кандзи по радикалам
-npm run seed:n5:more         # ещё N5: кандзи 車/休 + ~90 слов
-npm run seed:vocab:more      # ещё ~90 слов N5/N4/N3 (времена года, глаголы, наречия)
-npm run seed:content:v3      # 12 listening + 15 reading на N5/N4/N3 (заменяет старые)
-npm run seed:content:extra   # ещё 9 listening + 10 reading на N4/N3
-npm run seed:examples        # ~157 примеров предложений для словаря
-npm run translate:uk         # заполнить украинские поля (по словарям)
-npm run translate:uk:extra   # второй проход: мнемоники, объяснения грамматики, listening/reading
-npm run translate:uk:exercises # текст упражнений (промпты, пояснения) + примеры словаря
+npm run db:migrate           # creates the SQLite database and applies migrations
+npm run seed                 # N5 starter set (radicals, kanji, words, grammar, listening, reading)
+npm run seed:genki           # curated Genki 1+2: 44 grammar points + 88 words
+npm run seed:vocab           # extended vocabulary (~300 words, N5/N4/N3)
+npm run seed:n5              # full N5 set: 101 kanji + ~210 words
+npm run seed:radicals        # radicals + kanji breakdown by radical
+npm run seed:n5:more         # more N5: kanji 車/休 + ~90 words
+npm run seed:vocab:more      # ~90 more words, N5/N4/N3 (seasons, verbs, adverbs)
+npm run seed:content:v3      # 12 listening + 15 reading exercises for N5/N4/N3 (replaces older ones)
+npm run seed:content:extra   # 9 more listening + 10 reading exercises for N4/N3
+npm run seed:examples        # ~157 example sentences for the dictionary
+npm run translate:uk         # fill in the Ukrainian fields (dictionaries)
+npm run translate:uk:extra   # second pass: mnemonics, grammar explanations, listening/reading
+npm run translate:uk:exercises # exercise text (prompts, explanations) + dictionary examples
 npm run dev
 ```
 
-Открой <http://localhost:3000>.
+Open <http://localhost:3000>.
 
-## Перенос на другой Windows-ПК
+## Moving to another Windows PC
 
-В корне репозитория лежат `setup.bat` + `setup.ps1` — двоклик `setup.bat` поднимает проект на чистом ПК с нуля.
+The repository root contains `setup.bat` + `setup.ps1`. Double-clicking `setup.bat` brings the project up on a clean PC from scratch.
 
-### Что делает setup.ps1
+### What setup.ps1 does
 
-1. Проверяет наличие `node` / `npm`
+1. Checks that `node` / `npm` are installed
 2. `npm install`
-3. Создаёт `.env` с `DATABASE_URL`, если его нет
+3. Creates `.env` with `DATABASE_URL` if it is missing
 4. `npx prisma generate` + `npx prisma migrate deploy`
-5. Если `dev.db` уже скопирован — пропускает сидинг (сохраняет SRS-прогресс)
-   Если `dev.db` отсутствует — запускает все сидеры по порядку
-6. `npm run dev` → сайт на `http://localhost:3000`
+5. If `dev.db` has already been copied, skips seeding (keeps your SRS progress).
+   If `dev.db` is missing, runs all seeders in order
+6. `npm run dev` → the site runs at `http://localhost:3000`
 
-### Пошагово
+### Step by step
 
-**Если хочешь сохранить прогресс SRS** (повторения, XP, стрик):
+**To keep your SRS progress** (reviews, XP, streak):
 
-1. На исходном ПК скопируй папку `japanese-srs` целиком, **кроме** `node_modules` и `.next` (они большие и пересоздаются)
-2. Убедись, что вместе с проектом скопировался файл `dev.db` в корне репозитория — он содержит весь прогресс
-3. Перенеси папку на новый ПК (USB / архив / OneDrive)
-4. Установи [Node.js LTS](https://nodejs.org) (один раз; даст `node` и `npm`)
-5. Двоклик `setup.bat` в скопированной папке
-6. Дождись надписи `Site will be available at http://localhost:3000` и открой её в браузере
+1. On the old PC, copy the whole project folder **except** `node_modules` and `.next` (they are large and get recreated)
+2. Make sure `dev.db` in the repository root was copied too. It holds all of your progress
+3. Move the folder to the new PC (USB drive, archive, OneDrive)
+4. Install [Node.js LTS](https://nodejs.org) (once; it provides `node` and `npm`)
+5. Double-click `setup.bat` in the copied folder
+6. Wait for `Site will be available at http://localhost:3000` and open it in a browser
 
-**Если прогресс не нужен** — просто склонируй репозиторий:
+**If you don't need the progress**, just clone the repository:
 
 ```powershell
 git clone https://github.com/Mariia157/japanese-study-web.git
@@ -78,88 +85,89 @@ cd japanese-study-web
 .\setup.bat
 ```
 
-`dev.db` будет отсутствовать, и скрипт автоматически прогонит все сидеры (~3–5 минут на первый запуск).
+`dev.db` will be missing, so the script runs every seeder automatically (~3–5 minutes on the first run).
 
-### Если PowerShell ругается на политику безопасности
+### If PowerShell complains about the execution policy
 
-Скрипт `setup.bat` уже передаёт `-ExecutionPolicy Bypass`, так что вручную ничего менять не нужно. Если всё-таки требуется — один раз в админском PowerShell:
+`setup.bat` already passes `-ExecutionPolicy Bypass`, so you don't need to change anything by hand. If it is still required, run this once in an admin PowerShell:
 
 ```powershell
 Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 ```
 
-### Последующие запуски
+### Subsequent runs
 
-Достаточно `npm run dev` в терминале из папки проекта (или снова двоклик `setup.bat` — он за пару секунд проверит зависимости и запустит сервер).
+Run `npm run dev` from the project folder (or double-click `setup.bat` again: it checks dependencies in a couple of seconds and starts the server).
 
-## Архитектура
+## Architecture
 
 ```
 src/
   app/
-    page.tsx                  # дашборд: стрик, XP, due-ревью, daily goal
-    review/                   # /review — сессия SRS с кнопками Again/Hard/Good/Easy
-    grammar/                  # список грамматики текущего JLPT + детали по slug
-    vocabulary/               # словарь текущего уровня
-    kanji/                    # кандзи текущего уровня + детальная страница по символу
-    listening/, reading/      # упражнения по аудированию и чтению
-    stats/                    # heatmap, прогресс, ачивки
+    page.tsx                  # dashboard: streak, XP, due reviews, daily goal
+    review/                   # /review: SRS session with Again/Hard/Good/Easy buttons
+    grammar/                  # grammar list for the current JLPT level + detail page by slug
+    vocabulary/               # vocabulary for the current level
+    kanji/                    # kanji for the current level + detail page per character
+    listening/, reading/      # listening and reading exercises
+    stats/                    # heatmap, progress, achievements
     api/
-      srs/queue                # GET: due-карточки на сегодня
-      srs/review               # POST: оценка карточки 1–4 → планирование + начисление XP
-      srs/add                  # POST: добавить элемент в очередь SRS
-      level                    # POST: смена JLPT-уровня (cookie)
-      kanji/[id]/mnemonic      # POST: сохранить мнемонику
+      srs/queue                # GET: cards due today
+      srs/review               # POST: grade a card 1–4 → scheduling + XP
+      srs/add                  # POST: add an item to the SRS queue
+      level                    # POST: change the JLPT level (cookie)
+      locale                   # POST: change the interface language (cookie)
+      kanji/[id]/mnemonic      # POST: save a mnemonic
   components/
-    Nav.tsx, LevelSwitcher.tsx
-    Furigana.tsx               # ruby-аннотации кандзи
-    srs/ReviewSession.tsx      # карточка ревью
-    grammar/QuizBlock.tsx      # квизы
-    kanji/MnemonicEditor.tsx   # редактор мнемоник
-    listening/, reading/       # упражнения
+    Nav.tsx, LevelSwitcher.tsx, LocaleSwitcher.tsx
+    Furigana.tsx               # ruby annotations for kanji
+    srs/ReviewSession.tsx      # review card
+    grammar/QuizBlock.tsx      # quizzes
+    kanji/MnemonicEditor.tsx   # mnemonic editor
+    listening/, reading/       # exercises
     ui/                        # Card, Button, Progress
   lib/
-    srs/sm2.ts                 # алгоритм SM-2 (с юнит-тестами)
-    srs/queue.ts               # построение очереди ревью
-    xp.ts                      # XP, стрики, ачивки
-    level.ts                   # текущий JLPT-уровень из cookie
+    srs/sm2.ts                 # SM-2 algorithm (with unit tests)
+    srs/queue.ts               # builds the review queue
+    xp.ts                      # XP, streaks, achievements
+    level.ts                   # current JLPT level from a cookie
     db.ts                      # Prisma client (singleton + SQLite adapter)
 prisma/
-  schema.prisma                # все модели
+  schema.prisma                # all models
 scripts/
-  seed-starter.ts              # минимальный N5-набор для старта
-  seed-genki.ts                # курированная структура Genki 1+2 (грамматика+слова)
-  import-genki.ts              # PDF-парсер Genki (работает только с PDF, у которых есть текстовый слой)
+  seed-starter.ts              # minimal N5 set to get started
+  seed-genki.ts                # curated Genki 1+2 structure (grammar + words)
+  import-genki.ts              # Genki PDF parser (only works with PDFs that have a text layer)
 ```
 
-## Логика SM-2
+## SM-2 logic
 
-`src/lib/srs/sm2.ts` — чистая функция, оценки 1–4:
+`src/lib/srs/sm2.ts` is a pure function with grades 1–4:
 
-- **1 (Again)** — сбрасывает счётчик повторений, следующий показ через 1 день
-- **2 (Hard)** — интервал ×0.6
-- **3 (Good)** — стандартный интервал: 1 → 6 → 6×EF → 6×EF² ...
-- **4 (Easy)** — интервал ×1.3, ease factor растёт
+- **1 (Again)** resets the repetition count; the card comes back in 1 day
+- **2 (Hard)** multiplies the interval by 0.6
+- **3 (Good)** uses the standard interval: 1 → 6 → 6×EF → 6×EF² ...
+- **4 (Easy)** multiplies the interval by 1.3 and raises the ease factor
 
-Ease factor имеет нижнюю границу 1.3. Все 6 тест-кейсов в `sm2.test.ts` проходят.
+The ease factor never drops below 1.3. All 6 test cases in `sm2.test.ts` pass.
 
-## База данных
+## Database
 
-Использует **SQLite** локально (файл `dev.db` в корне репозитория, путь прописан в `.env` как `DATABASE_URL="file:./dev.db"`). Все массивы и JSON хранятся как строки JSON (для совместимости с SQLite).
+Uses **SQLite** locally (the `dev.db` file in the repository root; the path is set in `.env` as `DATABASE_URL="file:./dev.db"`). Arrays and JSON are stored as JSON strings for SQLite compatibility.
 
-Ключевые модели: `Kanji`, `Radical`, `Vocabulary`, `GrammarPoint`, `GrammarExercise`, `ListeningExercise`, `ReadingExercise`, `SrsCard`, `ReviewLog`, `UserStats`, `Achievement`.
+Key models: `Kanji`, `Radical`, `Vocabulary`, `GrammarPoint`, `GrammarExercise`, `ListeningExercise`, `ReadingExercise`, `SrsCard`, `ReviewLog`, `UserStats`, `Achievement`.
 
-Для деплоя на Vercel поменяй `provider = "sqlite"` на `"postgresql"` в `prisma/schema.prisma`, добавь `DATABASE_URL` Postgres и запусти `prisma migrate deploy`.
+To deploy on Vercel, change `provider = "sqlite"` to `"postgresql"` in `prisma/schema.prisma`, add a Postgres `DATABASE_URL` and run `prisma migrate deploy`.
 
-### Как получить доступ к БД
+### Accessing the database
 
-**1. Prisma Studio** — визуальный браузер с фильтрами и редактированием
+**1. Prisma Studio**: a visual browser with filters and editing
 ```powershell
 npm run db:studio
 ```
-Откроет `http://localhost:5555`.
+It opens `http://localhost:5555`.
 
-**2. SQLite CLI** (если установлен `sqlite3`)
+**2. SQLite CLI** (if `sqlite3` is installed)
 ```powershell
 sqlite3 dev.db
 .tables
@@ -167,11 +175,11 @@ SELECT word, reading, jlptLevel FROM Vocabulary LIMIT 10;
 .exit
 ```
 
-**3. GUI-клиент** — открыть файл `dev.db` в:
-- [DB Browser for SQLite](https://sqlitebrowser.org/) — бесплатный, удобный для просмотра
+**3. A GUI client**: open `dev.db` in
+- [DB Browser for SQLite](https://sqlitebrowser.org/), free and handy for browsing
 - DBeaver / TablePlus / DataGrip
 
-**4. Одноразовый запрос через Prisma из кода**
+**4. A one-off query through Prisma**
 ```ts
 // scripts/query.ts
 import { PrismaClient } from "@prisma/client";
@@ -181,50 +189,50 @@ const rows = await db.vocabulary.findMany({ where: { jlptLevel: 3 }, take: 10 })
 console.log(rows);
 await db.$disconnect();
 ```
-Запуск: `npx tsx scripts/query.ts`.
+Run it with `npx tsx scripts/query.ts`.
 
-## Источники контента
+## Content sources
 
-- **Стартовый набор (`npm run seed`)** — 15 радикалов, 30 N5-кандзи (с готовыми мнемониками), 30 базовых слов, 5 грамматических конструкций N5, listening/reading примеры
-- **Genki track (`npm run seed:genki`)** — 44 грамматические точки по 23 урокам Genki 1+2 + 88 слов с привязкой к урокам через `source: "genki-L<n>"`. Контент написан вручную на основе общеизвестной структуры учебника
-- **PDF-парсер (`npm run seed:genki:pdf -- --book=1|2 --textbook=<path>`)** — для PDF с текстовым слоем; сканированные изображения не парсятся
+- **Starter set (`npm run seed`):** 15 radicals, 30 N5 kanji (with ready-made mnemonics), 30 basic words, 5 N5 grammar patterns, listening/reading samples
+- **Genki track (`npm run seed:genki`):** 44 grammar points across the 23 lessons of Genki 1+2 + 88 words, linked to lessons via `source: "genki-L<n>"`. The content is written by hand, based on the well-known structure of the textbook
+- **PDF parser (`npm run seed:genki:pdf -- --book=1|2 --textbook=<path>`):** for PDFs with a text layer; scanned images are not parsed
 
-> **Важно:** Genki — коммерческий учебник. PDF в этот репозиторий НЕ включены. Используй только собственные легально приобретённые копии для личного изучения.
+> **Note:** Genki is a commercial textbook. No PDFs are included in this repository. Use only your own legally purchased copies for personal study.
 
-## Деплой на Vercel
+## Deploying to Vercel
 
-1. Запушить репозиторий на GitHub
-2. Создать проект на Vercel, подключить Vercel Postgres (или Neon)
-3. В `prisma/schema.prisma` поменять `provider` с `sqlite` на `postgresql`
-4. Задать `DATABASE_URL` в переменных окружения Vercel
+1. Push the repository to GitHub
+2. Create a Vercel project and connect Vercel Postgres (or Neon)
+3. In `prisma/schema.prisma`, change `provider` from `sqlite` to `postgresql`
+4. Set `DATABASE_URL` in the Vercel environment variables
 5. Build command: `prisma migrate deploy && next build`
-6. (Рекомендуется) добавить Basic Auth middleware (`src/middleware.ts`), особенно если БД содержит контент, производный от Genki
+6. (Recommended) add Basic Auth middleware (`src/middleware.ts`), especially if the database contains content derived from Genki
 
-## Скрипты
+## Scripts
 
-| Команда | Описание |
+| Command | Description |
 |---|---|
-| `npm run dev` | Запуск Turbopack dev-сервера |
-| `npm run build` | Production-сборка |
-| `npm test` | Юнит-тесты SM-2 (Vitest) |
-| `npm run db:migrate` | Применить Prisma-миграции |
-| `npm run db:studio` | Prisma Studio (визуальный браузер БД) |
-| `npm run seed` | Стартовый набор контента (N5: радикалы, кандзи, слова, грамматика) |
-| `npm run seed:genki` | Курированный Genki 1+2 — 44 грамм. точки |
-| `npm run seed:vocab` | Расширенный словарь (~300 слов N5/N4/N3) |
-| `npm run seed:n5` | Полный набор N5 — 101 кандзи + ~210 слов (с мнемониками и радикалами) |
-| `npm run seed:radicals` | Доп. радикалы + привязка кандзи к радикалам |
-| `npm run seed:n5:more` | Ещё N5 — кандзи 車/休 + ~90 слов (цвета, тело, время, вопросы, наречия) |
-| `npm run seed:vocab:more` | Ещё ~90 слов N5/N4/N3 (времена года, природа, глаголы, прилагательные, наречия) |
-| `npm run seed:content:v3` | Listening + reading с картинками (заменяет существующие) |
-| `npm run seed:content:extra` | Дополнительные N4/N3 listening + reading |
-| `npm run seed:examples` | Примеры предложений для словаря |
-| `npm run seed:explanations` | Развёрнутые объяснения грамматики |
-| `npm run translate:uk` | Заполнить украинские поля на основе английских (словари) |
-| `npm run translate:uk:extra` | Второй проход: мнемоники кандзи, объяснения и примеры грамматики, listening/reading |
-| `npm run translate:uk:exercises` | Текст упражнений грамматики (промпты, пояснения) + примеры предложений словаря |
-| `npm run seed:genki:pdf` | Импорт PDF (если есть текстовый слой) |
+| `npm run dev` | Start the Turbopack dev server |
+| `npm run build` | Production build |
+| `npm test` | SM-2 unit tests (Vitest) |
+| `npm run db:migrate` | Apply Prisma migrations |
+| `npm run db:studio` | Prisma Studio (visual database browser) |
+| `npm run seed` | Starter content (N5: radicals, kanji, words, grammar) |
+| `npm run seed:genki` | Curated Genki 1+2: 44 grammar points |
+| `npm run seed:vocab` | Extended vocabulary (~300 words, N5/N4/N3) |
+| `npm run seed:n5` | Full N5 set: 101 kanji + ~210 words (with mnemonics and radicals) |
+| `npm run seed:radicals` | Extra radicals + linking kanji to radicals |
+| `npm run seed:n5:more` | More N5: kanji 車/休 + ~90 words (colors, body, time, questions, adverbs) |
+| `npm run seed:vocab:more` | ~90 more words, N5/N4/N3 (seasons, nature, verbs, adjectives, adverbs) |
+| `npm run seed:content:v3` | Listening + reading with images (replaces existing ones) |
+| `npm run seed:content:extra` | Additional N4/N3 listening + reading |
+| `npm run seed:examples` | Example sentences for the dictionary |
+| `npm run seed:explanations` | Detailed grammar explanations |
+| `npm run translate:uk` | Fill in the Ukrainian fields from the English ones (dictionaries) |
+| `npm run translate:uk:extra` | Second pass: kanji mnemonics, grammar explanations and examples, listening/reading |
+| `npm run translate:uk:exercises` | Grammar exercise text (prompts, explanations) + dictionary example sentences |
+| `npm run seed:genki:pdf` | Import a PDF (if it has a text layer) |
 
-## Лицензия
+## License
 
-Личный проект. Код можешь использовать как угодно. Учебный контент в `scripts/seed-starter.ts` — общеизвестные сведения о японском, без копирайта. Контент в `scripts/seed-genki.ts` — пересказ структуры Genki своими словами для личного изучения. PDF учебников не входят в репозиторий.
+Personal project. Feel free to use the code however you like. The learning content in `scripts/seed-starter.ts` is common knowledge about Japanese, with no copyright. The content in `scripts/seed-genki.ts` retells the structure of Genki in my own words for personal study. Textbook PDFs are not part of the repository.
