@@ -90,17 +90,17 @@ export default async function Home() {
   return (
     <div className="space-y-6">
       <header className="relative">
-        <div className="flex items-stretch gap-4 sm:gap-6">
+        <div className="flex flex-wrap lg:flex-nowrap items-stretch gap-4 sm:gap-6">
           <div className="flex items-center justify-center bg-vermilion text-white px-4 sm:px-6 py-4 jp serif text-5xl sm:text-6xl shrink-0">学</div>
           <div className="flex-1 flex flex-col justify-between py-2 min-w-0">
-            <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] font-bold">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs uppercase tracking-[0.12em] sm:tracking-[0.2em] font-bold">
               <span className="tag-red">N{data.jlpt}</span>
               <span className="text-muted">— {t("home.welcome")} —</span>
             </div>
-            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground leading-[1.05]">{t("home.title")}</h1>
+            <h1 className="text-[clamp(1.5rem,7.6vw,1.875rem)] sm:text-5xl font-bold tracking-tight text-foreground leading-[1.05]">{t("home.title")}</h1>
           </div>
-          <div className="self-end pb-1">
-            <Link href="/review">
+          <div className="w-full lg:w-auto lg:self-end pb-1">
+            <Link href="/review" className="block">
               <Button size="lg">{t("home.start_review", { count: startCount })}</Button>
             </Link>
           </div>

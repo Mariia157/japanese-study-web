@@ -60,9 +60,9 @@ export function LevelSwitcher({ current }: { current: number }) {
       <button
         ref={buttonRef}
         onClick={() => setOpen((s) => !s)}
-        className="px-4 flex flex-col items-center justify-center hover:bg-ochre-soft transition-colors min-w-[68px]"
+        className="px-2 xl:px-4 flex flex-col items-center justify-center hover:bg-ochre-soft transition-colors min-w-[52px] xl:min-w-[68px]"
       >
-        <span className="serif text-2xl font-bold leading-none text-ochre tabular-nums">N{level}</span>
+        <span className="serif text-xl xl:text-2xl font-bold leading-none text-ochre tabular-nums">N{level}</span>
         <span className="text-[8px] uppercase tracking-[0.2em] text-muted mt-1 font-bold">Level</span>
       </button>
       {mounted && open && coords &&

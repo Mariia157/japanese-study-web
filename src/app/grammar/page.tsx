@@ -57,7 +57,7 @@ export default async function GrammarPage() {
             return (
               <Card key={s.id}>
                 <CardHeader>
-                  <div className="flex items-start justify-between gap-3">
+                  <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-3">
                     <div className="min-w-0">
                       <CardTitle>{pickL(locale, s.title, s.titleUk)}</CardTitle>
                       {(pickL(locale, s.summary, s.summaryUk)) && <CardDescription>{pickL(locale, s.summary, s.summaryUk)}</CardDescription>}
@@ -77,9 +77,9 @@ export default async function GrammarPage() {
                     <span className="font-mono text-muted">{pct}%</span>
                   </div>
                   <Progress value={pct} />
-                  <div className="grid sm:grid-cols-2 gap-2 mt-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
                     {s.points.map((p) => (
-                      <Link key={p.id} href={`/grammar/${p.slug}`}>
+                      <Link key={p.id} href={`/grammar/${p.slug}`} className="min-w-0">
                         <div
                           className={
                             "flex items-center justify-between gap-2 px-3 py-2 rounded-lg border transition-colors " +
@@ -105,9 +105,9 @@ export default async function GrammarPage() {
                 <CardTitle>{t("grammar.other_points")}</CardTitle>
                 <CardDescription>{t("grammar.other_points_desc")}</CardDescription>
               </CardHeader>
-              <CardBody className="grid sm:grid-cols-2 gap-2">
+              <CardBody className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {orphans.map((p) => (
-                  <Link key={p.id} href={`/grammar/${p.slug}`}>
+                  <Link key={p.id} href={`/grammar/${p.slug}`} className="min-w-0">
                     <div className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg border border-border hover:border-primary hover:bg-primary-soft transition-colors">
                       <span className="text-sm font-medium truncate">{pickL(locale, p.title, p.titleUk)}</span>
                       <ChevronRight className="w-3.5 h-3.5 text-muted shrink-0" />

@@ -58,9 +58,9 @@ export function LocaleSwitcher({ current }: { current: Locale }) {
       <button
         ref={buttonRef}
         onClick={() => setOpen((s) => !s)}
-        className="px-4 flex flex-col items-center justify-center hover:bg-pine-soft transition-colors min-w-[60px]"
+        className="px-2 xl:px-4 flex flex-col items-center justify-center hover:bg-pine-soft transition-colors min-w-[48px] xl:min-w-[60px]"
       >
-        <span className="serif text-2xl font-bold leading-none text-pine">{currentMeta.flag}</span>
+        <span className="serif text-xl xl:text-2xl font-bold leading-none text-pine">{currentMeta.flag}</span>
         <span className="text-[8px] uppercase tracking-[0.2em] text-muted mt-1 font-bold">Lang</span>
       </button>
       {mounted && open && coords &&

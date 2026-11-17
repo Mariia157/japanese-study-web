@@ -57,7 +57,7 @@ export function PracticeMenu({
       <button
         ref={buttonRef}
         onClick={() => setOpen((s) => !s)}
-        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-sm text-muted hover:text-foreground hover:bg-primary-soft transition-colors whitespace-nowrap"
+        className="inline-flex items-center gap-1 px-1 min-[360px]:px-1.5 sm:px-3 py-1.5 rounded-md text-[13px] sm:text-sm text-muted hover:text-foreground hover:bg-primary-soft transition-colors whitespace-nowrap"
       >
         <span>{practiceLabel}</span>
         <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", open && "rotate-180")} />
